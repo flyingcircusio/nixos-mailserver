@@ -97,8 +97,8 @@ in
             example = ''
               require ["fileinto", "mailbox"];
 
-              if address :is "from" "notifications@github.com" {
-                fileinto :create "GitHub";
+              if address :is "from" "gitlab@mg.gitlab.com" {
+                fileinto :create "GitLab";
                 stop;
               }
 
@@ -560,7 +560,7 @@ in
             If null the decision is left up to borg.
           '';
         };
-        
+
         auto = mkOption {
           type = types.bool;
           default = false;
@@ -585,7 +585,7 @@ in
             When using encryption the password / passphrase must be provided in passphraseFile.
           '';
         };
-        
+
         passphraseFile = mkOption {
           type = types.nullOr types.path;
           default = null;
