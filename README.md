@@ -5,9 +5,9 @@
 
 ## Stable Releases
 
-* [SNM v2.1.4](https://github.com/r-raymond/nixos-mailserver/releases/v2.1.4)
+* [SNM v2.1.4](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.1.4)
 
-[Latest Release (Candidate)](https://github.com/r-raymond/nixos-mailserver/releases/latest)
+[Latest Release (Candidate)](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.1.2)
 
 [Subscribe to SNM Announcement List](https://www.freelists.org/list/snm)
 This is a very low volume list where new releases of SNM are announced, so you
@@ -67,7 +67,7 @@ See the [mailing list archive](https://www.freelists.org/archive/snm/)
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://github.com/r-raymond/nixos-mailserver/archive/v2.1.4.tar.gz")
+    (builtins.fetchTarball "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.1.4/nixos-mailserver-v2.1.4.tar.gz")
   ];
 
   mailserver = {
@@ -94,18 +94,18 @@ For a complete list of options, see `default.nix`.
 
 
 ## How to Set Up a 10/10 Mail Server Guide
-Check out the [Complete Setup Guide](https://github.com/r-raymond/nixos-mailserver/wiki/A-Complete-Setup-Guide) in the project's wiki.
+Check out the [Complete Setup Guide](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/A-Complete-Setup-Guide) in the project's wiki.
 
 ## How to Backup
 
-Checkout the [Complete Backup Guide](https://github.com/r-raymond/nixos-mailserver/wiki/A-Complete-Backup-Guide). Backups are easy with `SNM`.
+Checkout the [Complete Backup Guide](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/A-Complete-Backup-Guide). Backups are easy with `SNM`.
 
 ## Development
 
-See the [How to Develop SNM](https://github.com/r-raymond/nixos-mailserver/wiki/How-to-Develop-SNM) wiki page.
+See the [How to Develop SNM](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/How-to-Develop-SNM) wiki page.
 
 ## Contributors
-See the [contributor tab](https://github.com/r-raymond/nixos-mailserver/graphs/contributors)
+See the [contributor tab](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/graphs/master)
 
 ### Alternative Implementations
  * [NixCloud Webservices](https://github.com/nixcloud/nixcloud-webservices)
