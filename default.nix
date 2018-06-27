@@ -97,8 +97,8 @@ in
             example = ''
               require ["fileinto", "mailbox"];
 
-              if address :is "from" "notifications@github.com" {
-                fileinto :create "GitHub";
+              if address :is "from" "gitlab@mg.gitlab.com" {
+                fileinto :create "GitLab";
                 stop;
               }
 
