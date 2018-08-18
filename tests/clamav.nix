@@ -19,13 +19,17 @@ import <nixpkgs/nixos/tests/make-test.nix> {
   nodes = {
     server = { config, pkgs, lib, ... }:
       let
-        clamav-db = pkgs.srcOnly {
-          name = "ClamAV-db";
+        clamav-db-files = lib.mapAttrs (name: value: pkgs.stdenv.mkDerivation rec {
+          inherit name;
+
           src = pkgs.fetchurl {
-            url = "https://files.griff.name/ClamAV-db.tar";
-            sha256 = "eecad99f4c071d216bd91565f84c0d90a1f93e5e3e22d8f3087686ba3bd219e7";
+            url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/raw/master/tests/clamav/${name}";
+            sha256 = value;
           };
-        };
+
+          unpackPhase = "true"; # don't try to unpack the raw .cvd files
+          installPhase = "cp $src $out";
+        }) (builtins.fromJSON (builtins.readFile ./clamav/hashes.json));
       in
         {
             imports = [
@@ -53,9 +57,9 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               '';
 
               script = ''
-                cp ${clamav-db}/bytecode.cvd /var/lib/clamav/
-                cp ${clamav-db}/main.cvd     /var/lib/clamav/
-                cp ${clamav-db}/daily.cvd    /var/lib/clamav/
+                cp ${clamav-db-files."bytecode.cvd"} /var/lib/clamav/
+                cp ${clamav-db-files."main.cvd"}     /var/lib/clamav/
+                cp ${clamav-db-files."daily.cvd"}    /var/lib/clamav/
                 chown clamav:clamav /var/lib/clamav/*
               '';
 
