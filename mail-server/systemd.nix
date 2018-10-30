@@ -18,20 +18,6 @@
 
 let
   cfg = config.mailserver;
-
-  createDhParameterFile =
-    lib.optionalString (lib.versionAtLeast (lib.getVersion pkgs.dovecot) "2.3")
-      ''
-        # Create a dh parameter file
-        if [ ! -s "${cfg.certificateDirectory}/dh.pem" ]
-        then
-            mkdir -p "${cfg.certificateDirectory}"
-            ${pkgs.openssl}/bin/openssl \
-                  dhparam ${builtins.toString cfg.dhParamBitLength} \
-                  > "${cfg.certificateDirectory}/dh.pem"
-        fi
-      '';
-
   preliminarySelfsigned = config.security.acme.preliminarySelfsigned;
   acmeWantsTarget = [ "acme-certificates.target" ]
     ++ (lib.optional preliminarySelfsigned "acme-selfsigned-certificates.target");
@@ -74,7 +60,7 @@ in
       };
     };
 
-    # Create maildir folder and dh parameters before dovecot startup
+    # Create maildir folder before dovecot startup
     systemd.services.dovecot2 = {
       after = [ "mailserver-certificates.target" ];
       wants = [ "mailserver-certificates.target" ];
@@ -84,8 +70,6 @@ in
         mkdir -p "${mailDirectory}"
         chgrp "${vmailGroupName}" "${mailDirectory}"
         chmod 02770 "${mailDirectory}"
-
-        ${createDhParameterFile}
       '';
     };
 
