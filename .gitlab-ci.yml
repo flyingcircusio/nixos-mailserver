@@ -1,0 +1,41 @@
+nixos-intern:
+  image: nixos/nix
+  variables:
+    NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.03.tar.gz"
+  script:
+    - nix-build tests/intern.nix
+
+nixos-extern:
+  image: nixos/nix
+  variables:
+    NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.03.tar.gz"
+  script:
+    - nix-build tests/extern.nix
+
+nixos-clamav:
+  image: nixos/nix
+  variables:
+    NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.03.tar.gz"
+  script:
+    - nix-build tests/clamav.nix
+
+nixos-unstable-intern:
+  image: nixos/nix
+  variables:
+    NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz"
+  script:
+    - nix-build tests/intern.nix
+
+nixos-unstable-extern:
+  image: nixos/nix
+  variables:
+    NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz"
+  script:
+    - nix-build tests/extern.nix
+
+nixos-unstable-clamav:
+  image: nixos/nix
+  variables:
+    NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz"
+  script:
+    - nix-build tests/clamav.nix
