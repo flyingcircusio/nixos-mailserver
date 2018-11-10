@@ -55,6 +55,13 @@ let
                       (lib.concatStringsSep "\n" (all_valiases_postfix ++
                                                   catchAllPostfix));
 
+  reject_senders_postfix = (map
+    (sender:
+      "${sender} REJECT")
+    (cfg.rejectSender));
+  reject_senders_file = builtins.toFile "reject_senders" (lib.concatStringsSep "\n" (reject_senders_postfix))  ;
+
+
   reject_recipients_postfix = (map
     (recipient:
       "${recipient} REJECT")
@@ -103,6 +110,8 @@ let
     + (lib.optionalString cfg.debug ''
     debugLevel = 4
   ''));
+
+  mappedFile = name: "hash:/var/lib/postfix/conf/${name}";
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -113,6 +122,7 @@ in
       networksStyle = "host";
       mapFiles."valias" = valiases_file;
       mapFiles."vaccounts" = vaccounts_file;
+      mapFiles."reject_senders" = reject_senders_file;
       mapFiles."reject_recipients" = reject_recipients_file;
       sslCert = certificatePath;
       sslKey = keyPath;
@@ -132,8 +142,8 @@ in
         virtual_gid_maps = static:5000
         virtual_mailbox_base = ${mailDirectory}
         virtual_mailbox_domains = ${vhosts_file}
-        virtual_mailbox_maps = hash:/var/lib/postfix/conf/valias
-        virtual_alias_maps = hash:/var/lib/postfix/conf/valias
+        virtual_mailbox_maps = ${mappedFile "valias"}
+        virtual_alias_maps = ${mappedFile "valias"}
         virtual_transport = lmtp:unix:/run/dovecot2/dovecot-lmtp
 
         # sasl with dovecot
@@ -144,9 +154,12 @@ in
 
         policy-spf_time_limit = 3600s
 
+        # reject selected senders
+        smtpd_sender_restrictions = check_sender_access ${mappedFile "reject_senders"}
+
         # quota and spf checking
         smtpd_recipient_restrictions =
-          check_recipient_access hash:/var/lib/postfix/conf/reject_recipients,
+          check_recipient_access ${mappedFile "reject_recipients"},
           check_policy_service inet:localhost:12340,
           check_policy_service unix:private/policy-spf
 
