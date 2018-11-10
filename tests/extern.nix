@@ -36,7 +36,6 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               debug = true;
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
-              dhParamBitLength = 512;
               rewriteMessageId = true;
 
               loginAccounts = {

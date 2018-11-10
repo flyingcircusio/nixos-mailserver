@@ -97,9 +97,6 @@ in
 
         mail_access_groups = ${vmailGroupName}
         ssl = required
-        ${lib.optionalString (lib.versionAtLeast (lib.getVersion pkgs.dovecot) "2.3") ''
-          ssl_dh = <${certificateDirectory}/dh.pem
-        ''}
 
         service lmtp {
           unix_listener dovecot-lmtp {
