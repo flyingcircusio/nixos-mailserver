@@ -5,9 +5,9 @@
 
 ## Stable Releases
 
-* [SNM v2.1.4](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.1.4)
+* [SNM v2.2.0](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.2.0)
 
-[Latest Release (Candidate)](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.1.2)
+[Latest Release (Candidate)](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.2.0)
 
 [Subscribe to SNM Announcement List](https://www.freelists.org/list/snm)
 This is a very low volume list where new releases of SNM are announced, so you
@@ -67,7 +67,7 @@ See the [mailing list archive](https://www.freelists.org/archive/snm/)
 { config, pkgs, ... }:
 {
   imports = [
-    (builtins.fetchTarball "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.1.4/nixos-mailserver-v2.1.4.tar.gz")
+    (builtins.fetchTarball "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.2.0/nixos-mailserver-v2.2.0.tar.gz")
   ];
 
   mailserver = {
