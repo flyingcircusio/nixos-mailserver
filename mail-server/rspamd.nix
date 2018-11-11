@@ -21,15 +21,12 @@ let
 
   postfixCfg = config.services.postfix;
   rspamdCfg = config.services.rspamd;
-  rspamdSocket = if rspamdCfg.socketActivation
-    then "rspamd-rspamd_proxy-1.socket"
-    else "rspamd.service";
+  rspamdSocket = "rspamd.service";
 in
 {
   config = with cfg; lib.mkIf enable {
     services.rspamd = {
       enable = true;
-      socketActivation = false;
       extraConfig = ''
         extended_spam_headers = yes;
       '' + (lib.optionalString cfg.virusScanning ''
