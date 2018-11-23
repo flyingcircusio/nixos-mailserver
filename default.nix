@@ -39,6 +39,13 @@ in
       description = "The domains that this mail server serves.";
     };
 
+    messageSizeLimit = mkOption {
+      type = types.int;
+      example = 52428800;
+      default = 20971520;
+      description = "Message size limit enforced by Postfix.";
+    };
+
     loginAccounts = mkOption {
       type = types.loaOf (types.submodule ({ name, ... }: {
         options = {

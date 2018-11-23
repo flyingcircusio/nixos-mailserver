@@ -76,7 +76,7 @@ let
   # see
   # https://blog.grimneko.de/2011/12/24/a-bunch-of-tips-for-improving-your-postfix-setup/
   # for details on how this file looks. By using the same file as valiases,
-  # every alias is owned (uniquely) by its user. 
+  # every alias is owned (uniquely) by its user.
   # The user's own address is already in all_valiases_postfix.
   vaccounts_file = builtins.toFile "vaccounts" (lib.concatStringsSep "\n" all_valiases_postfix);
 
@@ -135,7 +135,7 @@ in
 
         smtpd_banner = ${fqdn} ESMTP NO UCE
         disable_vrfy_command = yes
-        message_size_limit = 20971520
+        message_size_limit = ${builtins.toString cfg.messageSizeLimit}
 
         # virtual mail system
         virtual_uid_maps = static:5000
