@@ -57,7 +57,7 @@ D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
   * DKIM Signing
     - [ ] Allow a per domain selector
 
-### Changelog
+### Changelog and How to Stay Up-to-Date
 
 See the [mailing list archive](https://www.freelists.org/archive/snm/)
 
