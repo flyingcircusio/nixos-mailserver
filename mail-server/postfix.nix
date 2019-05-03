@@ -127,6 +127,8 @@ in
       sslCert = certificatePath;
       sslKey = keyPath;
       enableSubmission = true;
+      virtual =
+        (lib.concatStringsSep "\n" (all_valiases_postfix ++ catchAllPostfix));
 
       extraConfig =
       ''
@@ -143,7 +145,6 @@ in
         virtual_mailbox_base = ${mailDirectory}
         virtual_mailbox_domains = ${vhosts_file}
         virtual_mailbox_maps = ${mappedFile "valias"}
-        virtual_alias_maps = ${mappedFile "valias"}
         virtual_transport = lmtp:unix:/run/dovecot2/dovecot-lmtp
 
         # sasl with dovecot
