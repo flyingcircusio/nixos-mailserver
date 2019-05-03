@@ -69,7 +69,7 @@ See the [mailing list archive](https://www.freelists.org/archive/snm/)
   imports = [
     (builtins.fetchTarball {
       url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.2.1/nixos-mailserver-v2.2.1.tar.gz";
-      sha256 = "0gqzgy50hgb5zmdjiffaqp277a68564vflfpjvk1gv6079zahksc";
+      sha256 = "08rlch6hcfllmafm98075zwy0ibdr8v93z2m47zr74ydy6jj7g51";
     })
   ];
 
