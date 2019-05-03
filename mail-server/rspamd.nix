@@ -42,7 +42,7 @@ in
       '');
 
       workers.rspamd_proxy = {
-        type = "proxy";
+        type = "rspamd_proxy";
         bindSockets = [{
           socket = "/run/rspamd/rspamd-milter.sock";
           mode = "0664";
