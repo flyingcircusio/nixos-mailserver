@@ -167,19 +167,33 @@ in
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions
         smtpd_tls_security_level = may
+
         # strong might suffice and is computationally less expensive
         smtpd_tls_eecdh_grade = ultra
-        # Disable predecessors to TLS
-        smtpd_tls_protocols = !SSLv2, !SSLv3
+
+        # Disable obselete protocols
+        smtpd_tls_protocols = TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
+        smtp_tls_protocols = TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
+        smtpd_tls_mandatory_protocols = TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
+        smtp_tls_mandatory_protocols = TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
+
+        smtp_tls_ciphers = high
+        smtpd_tls_ciphers = high
+        smtp_tls_mandatory_ciphers = high
+        smtpd_tls_mandatory_ciphers = high
+
+        # Disable deprecated ciphers
+        smtpd_tls_mandatory_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
+        smtpd_tls_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
+        smtp_tls_mandatory_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
+        smtp_tls_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
+
+        tls_preempt_cipherlist = yes
+
         # Allowing AUTH on a non encrypted connection poses a security risk
         smtpd_tls_auth_only = yes
         # Log only a summary message on TLS handshake completion
         smtpd_tls_loglevel = 1
-
-        # Disable weak ciphers as reported by https://ssl-tools.net
-        # https://serverfault.com/questions/744168/how-to-disable-rc4-on-postfix
-        smtpd_tls_exclude_ciphers = RC4, aNULL
-        smtp_tls_exclude_ciphers = RC4, aNULL
 
         # Configure a non blocking source of randomness
         tls_random_source = dev:/dev/urandom
