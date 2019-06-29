@@ -38,6 +38,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
               rewriteMessageId = true;
+              dkimKeyBits = 1535;
 
               loginAccounts = {
                   "user1@example.com" = {
@@ -319,6 +320,10 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       subtest "have correct fqdn as sender", sub {
         $client->succeed("grep 'Received: from mail.example.com' ~/mail/*");
+      };
+
+      subtest "dkim has user-specified size", sub {
+        $server->succeed("openssl rsa -in /var/dkim/example.com.mail.key -text -noout | grep 'Private-Key: (1535 bit)'");
       };
 
       subtest "dkim singing, multiple domains", sub {
