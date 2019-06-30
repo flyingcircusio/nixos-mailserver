@@ -34,6 +34,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         {
             imports = [
                 ../default.nix
+                ./lib/config.nix
             ];
 
             virtualisation.memorySize = 1500;
@@ -103,6 +104,10 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           exec grep '${clientIP}' "$@"
         '';
       in {
+        imports = [
+            ./lib/config.nix
+        ];
+
         environment.systemPackages = with pkgs; [
           fetchmail msmtp procmail findutils grep-ip
         ];

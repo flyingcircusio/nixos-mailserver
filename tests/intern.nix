@@ -21,6 +21,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
     {
         imports = [
             ./../default.nix
+            ./lib/config.nix
         ];
 
         mailserver = {
