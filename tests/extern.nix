@@ -21,6 +21,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
         {
             imports = [
                 ../default.nix
+                ./lib/config.nix
             ];
 
             services.rsyslogd = {
@@ -134,6 +135,9 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             imap.close()
         '';
       in {
+        imports = [
+            ./lib/config.nix
+        ];
         environment.systemPackages = with pkgs; [
           fetchmail msmtp procmail findutils grep-ip check-mail-id test-imap-spam test-imap-ham
         ];
