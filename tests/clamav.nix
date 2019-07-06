@@ -125,10 +125,15 @@ import <nixpkgs/nixos/tests/make-test.nix> {
           };
           "root/.msmtprc" = {
             text = ''
-              account        test2
+              defaults
+              tls            on
+              tls_certcheck  off
+
+              account        user2
               host           ${serverIP}
               port           587
               from           user@example2.com
+              auth           on
               user           user@example2.com
               password       user2
             '';
@@ -169,7 +174,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
             X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
             --Apple-Mail=_2689C63E-FD18-4E4D-8822-54797BDA9607--
           '';
-          "root/email2".text = ''
+          "root/safe-email".text = ''
             From: User <user@example2.com>
             To: User1 <user1@example.com>
             Cc:
@@ -187,12 +192,16 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       };
     };
 
-  testScript =
+  testScript = { nodes, ... }:
       ''
       startAll;
 
       $server->waitForUnit("multi-user.target");
       $client->waitForUnit("multi-user.target");
+
+      # TODO put this blocking into the systemd units? I am not sure if rspamd already waits for the clamd socket.
+      $server->waitUntilSucceeds("timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
+      $server->waitUntilSucceeds("timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/clamav/clamd.ctl < /dev/null; [ \$? -eq 124 ]");
 
       $client->execute("cp -p /etc/root/.* ~/");
       $client->succeed("mkdir -p ~/mail");
@@ -206,7 +215,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
 
       # Verify that mail can be sent and received before testing virus scanner
       $client->execute("rm ~/mail/*");
-      $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email2 >&2");
+      $client->succeed("msmtp -a user2 user1\@example.com < /etc/root/safe-email >&2");
       # give the mail server some time to process the mail
       $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
       $client->execute("rm ~/mail/*");
@@ -214,13 +223,12 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       $client->succeed("fetchmail -v >&2");
       $client->execute("rm ~/mail/*");
 
-
       subtest "virus scan file", sub {
-        $server->fail("clamscan --follow-file-symlinks=2 -r /etc/root/ >&2");
+          $server->succeed("clamdscan \$(readlink -f /etc/root/eicar.com.txt) | grep \"Txt\\.Malware\\.Agent-1787597 FOUND\" >&2");
       };
 
-      subtest "virus scanner", sub {
-          $client->fail("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/virus-email >&2");
+      subtest "virus scan email", sub {
+          $client->succeed("msmtp -a user2 user1\@example.com < /etc/root/virus-email 2>&1 | grep \"server message: 554 5\\.7\\.1 clamav: virus found: .*\\(Eicar\\|EICAR\\)\" >&2"); # for some reason this ID is nondetermistic...
           # give the mail server some time to process the mail
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
       };

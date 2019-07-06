@@ -275,12 +275,15 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       };
     };
 
-  testScript =
+  testScript = { nodes, ... }:
       ''
       startAll;
 
       $server->waitForUnit("multi-user.target");
       $client->waitForUnit("multi-user.target");
+
+      # TODO put this blocking into the systemd units?
+      $server->waitUntilSucceeds("timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
 
       $client->execute("cp -p /etc/root/.* ~/");
       $client->succeed("mkdir -p ~/mail");

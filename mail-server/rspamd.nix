@@ -27,19 +27,22 @@ in
   config = with cfg; lib.mkIf enable {
     services.rspamd = {
       enable = true;
-      extraConfig = ''
-        extended_spam_headers = yes;
-      '' + (lib.optionalString cfg.virusScanning ''
-        antivirus {
-          clamav {
-            action = "reject";
-            symbol = "CLAM_VIRUS";
-            type = "clamav";
-            log_clean = true;
-            servers = "/run/clamav/clamd.ctl";
-          }
-        }
-      '');
+      inherit debug;
+      locals = {
+          "milter_headers.conf" = { text = ''
+              extended_spam_headers = yes;
+          ''; };
+          "antivirus.conf" = lib.mkIf cfg.virusScanning { text = ''
+              clamav {
+                action = "reject";
+                symbol = "CLAM_VIRUS";
+                type = "clamav";
+                log_clean = true;
+                servers = "/run/clamav/clamd.ctl";
+                scan_mime_parts = false; # scan mail as a whole unit, not parts. seems to be needed to work at all
+              }
+          ''; };
+      };
 
       workers.rspamd_proxy = {
         type = "rspamd_proxy";
