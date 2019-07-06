@@ -40,16 +40,6 @@ let
           fi
         '';
   createAllCerts = lib.concatStringsSep "\n" (map createDomainDkimCert cfg.domains);
-  create_dkim_cert =
-        ''
-          # Create dkim dir
-          mkdir -p "${cfg.dkimKeyDirectory}"
-          chown ${dkimUser}:${dkimGroup} "${cfg.dkimKeyDirectory}"
-
-          ${createAllCerts}
-
-          chown -R ${dkimUser}:${dkimGroup} "${cfg.dkimKeyDirectory}"
-        '';
 
   keyTable = pkgs.writeText "opendkim-KeyTable" 
     (lib.concatStringsSep "\n" (lib.flip map cfg.domains 
@@ -80,11 +70,17 @@ in
       };
 
       users.users = optionalAttrs (config.services.postfix.user == "postfix") {
-        postfix.extraGroups = [ "${config.services.opendkim.group}" ];
+        postfix.extraGroups = [ "${dkimGroup}" ];
       };
       systemd.services.opendkim = {
-        preStart = create_dkim_cert;
-        serviceConfig.ExecStart = lib.mkForce "${pkgs.opendkim}/bin/opendkim ${escapeShellArgs args}";
+        preStart = lib.mkForce createAllCerts;
+        serviceConfig = {
+          ExecStart = lib.mkForce "${pkgs.opendkim}/bin/opendkim ${escapeShellArgs args}";
+          PermissionsStartOnly = lib.mkForce false;
+        };
       };
+      systemd.tmpfiles.rules = [
+        "d '${cfg.dkimKeyDirectory}' - ${dkimUser} ${dkimGroup} - -"
+      ];
     };
 }
