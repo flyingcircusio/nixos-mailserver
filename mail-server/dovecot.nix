@@ -136,6 +136,7 @@ in
         }
 
         plugin {
+          reipient_delmiter = +
           sieve_plugins = sieve_imapsieve sieve_extprograms
           sieve = file:/var/sieve/%u/scripts;active=/var/sieve/%u/active.sieve
           sieve_default = file:/var/sieve/%u/default.sieve
