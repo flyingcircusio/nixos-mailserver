@@ -134,7 +134,7 @@ in
       ''
         # Extra Config
         mydestination =
-
+        recipient_delimiter = +
         smtpd_banner = ${fqdn} ESMTP NO UCE
         disable_vrfy_command = yes
         message_size_limit = ${builtins.toString cfg.messageSizeLimit}
