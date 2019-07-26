@@ -41,6 +41,14 @@ in
         }
       '');
 
+      overrides = {
+        "milter_headers.conf" = {
+          text = ''
+            extended_spam_headers = true;
+          '';
+        };
+      };
+
       workers.rspamd_proxy = {
         type = "rspamd_proxy";
         bindSockets = [{
