@@ -106,6 +106,9 @@ in
           }
         }
 
+        recipient_delimiter = +
+        lmtp_save_to_detail_mailbox = yes
+
         protocol lmtp {
           mail_plugins = $mail_plugins sieve
         }
@@ -136,7 +139,6 @@ in
         }
 
         plugin {
-          recipient_delmiter = +
           sieve_plugins = sieve_imapsieve sieve_extprograms
           sieve = file:/var/sieve/%u/scripts;active=/var/sieve/%u/active.sieve
           sieve_default = file:/var/sieve/%u/default.sieve
