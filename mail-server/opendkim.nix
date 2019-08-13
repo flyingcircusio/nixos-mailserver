@@ -33,6 +33,7 @@ let
           then
               ${pkgs.opendkim}/bin/opendkim-genkey -s "${cfg.dkimSelector}" \
                                                    -d "${dom}" \
+                                                   --bits="${toString cfg.dkimKeyBits}" \
                                                    --directory="${cfg.dkimKeyDirectory}"
               mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.private" "${dkim_key}"
               mv "${cfg.dkimKeyDirectory}/${cfg.dkimSelector}.txt" "${dkim_txt}"
