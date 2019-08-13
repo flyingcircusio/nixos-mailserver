@@ -1,41 +1,47 @@
+before_script:
+  # report CPU info so we can monitor if real KVM becomes available. create /dev/kvm to fool nix
+  - cat /proc/cpuinfo
+  - ls -l /dev/kvm || true
+  - touch /dev/kvm
+
 nixos-intern:
   image: nixos/nix
   variables:
     NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-19.03.tar.gz"
   script:
-    - nix-build tests/intern.nix
+    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/intern.nix
 
 nixos-extern:
   image: nixos/nix
   variables:
     NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-19.03.tar.gz"
   script:
-    - nix-build tests/extern.nix
+    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/extern.nix
 
 nixos-clamav:
   image: nixos/nix
   variables:
     NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-19.03.tar.gz"
   script:
-    - nix-build tests/clamav.nix
+    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/clamav.nix
 
 nixos-unstable-intern:
   image: nixos/nix
   variables:
     NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz"
   script:
-    - nix-build tests/intern.nix
+    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/intern.nix
 
 nixos-unstable-extern:
   image: nixos/nix
   variables:
     NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz"
   script:
-    - nix-build tests/extern.nix
+    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/extern.nix
 
 nixos-unstable-clamav:
   image: nixos/nix
   variables:
     NIX_PATH: "nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-unstable.tar.gz"
   script:
-    - nix-build tests/clamav.nix
+    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/clamav.nix
