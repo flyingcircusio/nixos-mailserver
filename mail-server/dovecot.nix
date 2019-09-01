@@ -107,7 +107,7 @@ in
         }
 
         recipient_delimiter = +
-        lmtp_save_to_detail_mailbox = yes
+        lmtp_save_to_detail_mailbox = ${cfg.lmptSaveToDetailMailbox}
 
         protocol lmtp {
           mail_plugins = $mail_plugins sieve

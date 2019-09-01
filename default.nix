@@ -144,6 +144,16 @@ in
       default = {};
     };
 
+    lmptSaveToDetailMailbox = mkOption {
+      type = types.enum ["yes" "no"];
+      default = "yes";
+      description = ''
+        If an email address is delimited by a "+", should it be filed into a
+        mailbox matching the string after the "+"?  For example,
+        user1+test@example.com would be filed into the mailbox "test".
+      '';
+    };
+
     extraVirtualAliases = mkOption {
       type = types.loaOf (mkOptionType {
         name = "Login Account";
