@@ -244,7 +244,7 @@ in
     };
 
     hierarchySeparator = mkOption {
-      type = types.string;
+      type = types.str;
       default = ".";
       description = ''
         The hierarchy separator for mailboxes used by dovecot for the namespace 'inbox'.
@@ -489,14 +489,14 @@ in
       enable = mkEnableOption "monitoring via monit";
 
       alertAddress = mkOption {
-        type = types.string;
+        type = types.str;
         description = ''
           The email address to send alerts to.
         '';
       };
 
       config = mkOption {
-        type = types.string;
+        type = types.str;
         default = ''
           set daemon 120 with start delay 60
           set mailserver
@@ -548,7 +548,7 @@ in
       enable = mkEnableOption "backup via borgbackup";
 
       repoLocation = mkOption {
-        type = types.string;
+        type = types.str;
         default = "/var/borgbackup";
         description = ''
           The location where borg saves the backups.
@@ -558,19 +558,19 @@ in
       };
 
       startAt = mkOption {
-        type = types.string;
+        type = types.str;
         default = "hourly";
         description = "When or how often the backup should run. Must be in the format described in systemd.time 7.";
       };
 
       user = mkOption {
-        type = types.string;
+        type = types.str;
         default = "virtualMail";
         description = "The user borg and its launch script is run as.";
       };
 
       group = mkOption {
-        type = types.string;
+        type = types.str;
         default = "virtualMail";
         description = "The group borg and its launch script is run as.";
       };
@@ -624,7 +624,7 @@ in
       };
 
       name = mkOption {
-        type = types.string;
+        type = types.str;
         default = "{hostname}-{user}-{now}";
         description = ''
           The name of the individual backups as used by borg.
@@ -639,19 +639,19 @@ in
       };
 
       extraArgumentsForInit = mkOption {
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         default = ["--critical"];
         description = "Additional arguments to add to the borg init command line.";
       };
 
       extraArgumentsForCreate = mkOption {
-        type = types.listOf types.string;
+        type = types.listOf types.str;
         default = [ ];
         description = "Additional arguments to add to the borg create command line e.g. '--stats'.";
       };
 
       cmdPreexec = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           The command to be executed before each backup operation.
@@ -662,7 +662,7 @@ in
       };
 
       cmdPostexec = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           The command to be executed after each backup operation.
@@ -706,7 +706,7 @@ in
       };
 
       cmdPreexec = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = ''
           The command to be executed before each backup operation. This is wrapped in a shell script to be called by rsnapshot.
@@ -714,7 +714,7 @@ in
       };
 
       cmdPostexec = mkOption {
-        type = types.nullOr types.string;
+        type = types.nullOr types.str;
         default = null;
         description = "The command to be executed after each backup operation. This is wrapped in a shell script to be called by rsnapshot.";
       };
@@ -738,7 +738,7 @@ in
       };
 
       cronIntervals = mkOption {
-        type = types.attrsOf types.string;
+        type = types.attrsOf types.str;
         default = {
                    # minute, hour, day-in-month, month, weekday (0 = sunday)
           hourly = " 0  *  *  *  *"; # Every full hour
