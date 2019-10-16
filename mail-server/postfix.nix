@@ -50,6 +50,13 @@ let
   # all_valiases_postfix :: [ String ]
   all_valiases_postfix = valiases_postfix ++ extra_valiases_postfix;
 
+  # denied_recipients_postfix :: [ String ]
+  denied_recipients_postfix = (map
+    (acct: "${acct.name} REJECT ${acct.rejectMessage}")
+    (lib.filter (acct: acct.sendOnly) (lib.attrValues cfg.loginAccounts)));
+  denied_recipients_file = builtins.toFile "denied_recipients" (lib.concatStringsSep "\n" denied_recipients_postfix);
+
+
   # valiases_file :: Path
   valiases_file = builtins.toFile "valias"
                       (lib.concatStringsSep "\n" (all_valiases_postfix ++
@@ -122,6 +129,7 @@ in
       networksStyle = "host";
       mapFiles."valias" = valiases_file;
       mapFiles."vaccounts" = vaccounts_file;
+      mapFiles."denied_recipients" = denied_recipients_file;
       mapFiles."reject_senders" = reject_senders_file;
       mapFiles."reject_recipients" = reject_recipients_file;
       sslCert = certificatePath;
@@ -160,6 +168,7 @@ in
 
         # quota and spf checking
         smtpd_recipient_restrictions =
+          check_recipient_access ${mappedFile "denied_recipients"},
           check_recipient_access ${mappedFile "reject_recipients"},
           check_policy_service inet:localhost:12340,
           check_policy_service unix:private/policy-spf

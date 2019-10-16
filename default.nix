@@ -137,6 +137,26 @@ in
               Per-user sieve script.
             '';
           };
+
+          sendOnly = mkOption {
+            type = types.bool;
+            default = false;
+            description = ''
+              Specifies if the account should be a send-only account.
+              Emails sent to send-only accounts will be rejected with the
+              rejectMessage stating the reason.
+            '';
+          };
+
+          rejectMessage = mkOption {
+            type = types.str;
+            default = "This account cannot receive emails.";
+            description = ''
+              The message that will be returned to the sender when an email is
+              sent to a send-only account. Only used if the account is marked
+              as send-only.
+            '';
+          };
         };
 
         config.name = mkDefault name;
