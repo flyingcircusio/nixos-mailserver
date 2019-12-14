@@ -323,7 +323,7 @@ import <nixpkgs/nixos/tests/make-test.nix> {
       };
 
       subtest "dkim has user-specified size", sub {
-        $server->succeed("openssl rsa -in /var/dkim/example.com.mail.key -text -noout | grep 'Private-Key: (1535 bit)'");
+        $server->succeed("openssl rsa -in /var/dkim/example.com.mail.key -text -noout | grep 'Private-Key: (1535 bit'");
       };
 
       subtest "dkim singing, multiple domains", sub {
