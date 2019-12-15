@@ -1,5 +1,6 @@
 .template:
   image: nixos/nix
+  retry: 2
   before_script:
     # report CPU info so we can monitor if real KVM becomes available. create /dev/kvm to fool nix
     - cat /proc/cpuinfo
