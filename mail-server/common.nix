@@ -14,17 +14,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>
 
-{ config, lib }:
+{ config, pkgs, lib }:
 
 let
   cfg = config.mailserver;
-  # passwd :: [ String ]
-  passwd = lib.mapAttrsToList
-    (name: value: "${name}:${value.hashedPassword}:${builtins.toString cfg.vmailUID}:${builtins.toString cfg.vmailUID}::${cfg.mailDirectory}:/run/current-system/sw/bin/nologin:"
-     + (if lib.isString value.quota
-            then "userdb_quota_rule=*:storage=${value.quota}"
-            else ""))
-            cfg.loginAccounts;
 in
 {
   # cert :: PATH
@@ -45,6 +38,11 @@ in
                    then "/var/lib/acme/${cfg.fqdn}/key.pem"
                    else throw "Error: Certificate Scheme must be in { 1, 2, 3 }";
 
-  # passwdFile :: PATH
-  passwdFile = builtins.toFile "passwd" (lib.concatStringsSep "\n" passwd);
+  passwordFiles = let
+    mkHashFile = name: hash: pkgs.writeText "${builtins.hashString "sha256" name}-password-hash" hash;
+  in
+    lib.mapAttrs (name: value:
+    if value.hashedPasswordFile == null then
+      builtins.toString (mkHashFile name value.hashedPassword)
+    else value.hashedPasswordFile) cfg.loginAccounts;
 }

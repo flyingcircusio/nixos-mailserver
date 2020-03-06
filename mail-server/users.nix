@@ -66,6 +66,19 @@ let
   '';
 in {
   config = lib.mkIf enable {
+    # assert that all accounts provide a password
+    assertions = (map (acct: {
+      assertion = (acct.hashedPassword != null || acct.hashedPasswordFile != null);
+      message = "${acct.name} must provide either a hashed password or a password hash file";
+    }) (lib.attrValues loginAccounts));
+
+    # warn for accounts that specify both password and file
+    warnings = (map
+      (acct: "${acct.name} specifies both a password hash and hash file; hash file will be used")
+      (lib.filter
+        (acct: (acct.hashedPassword != null && acct.hashedPasswordFile != null))
+        (lib.attrValues loginAccounts)));
+
     # set the vmail gid to a specific value
     users.groups = {
       "${vmailGroupName}" = { gid = vmailUID; };

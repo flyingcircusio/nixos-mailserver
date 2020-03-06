@@ -16,7 +16,7 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config lib; });
+with (import ./common.nix { inherit config pkgs lib; });
 
 let
   inherit (lib.strings) concatStringsSep;

@@ -16,10 +16,13 @@
 
 { config, pkgs, lib, ... }:
 
-with (import ./common.nix { inherit config lib; });
+with (import ./common.nix { inherit config pkgs lib; });
 
 let
   cfg = config.mailserver;
+
+  passwdDir = "/run/dovecot2";
+  passwdFile = "${passwdDir}/passwd";
 
   maildirLayoutAppendix = lib.optionalString cfg.useFsLayout ":LAYOUT=fs";
 
@@ -47,6 +50,35 @@ let
       done
     '';
   };
+
+  genPasswdScript = pkgs.writeScript "generate-password-file" ''
+    #!${pkgs.stdenv.shell}
+
+    set -euo pipefail
+
+    if (! test -d "${passwdDir}"); then
+      mkdir "${passwdDir}"
+      chmod 755 "${passwdDir}"
+    fi
+
+    for f in ${builtins.toString (lib.mapAttrsToList (name: value: passwordFiles."${name}") cfg.loginAccounts)}; do
+      if [ ! -f "$f" ]; then
+        echo "Expected password hash file $f does not exist!"
+        exit 1
+      fi
+    done
+
+    cat <<EOF > ${passwdFile}
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: value:
+      "${name}:${"$(cat ${passwordFiles."${name}"})"}:${builtins.toString cfg.vmailUID}:${builtins.toString cfg.vmailUID}::${cfg.mailDirectory}:/run/current-system/sw/bin/nologin:"
+        + (if lib.isString value.quota
+              then "userdb_quota_rule=*:storage=${value.quota}"
+              else "")
+    ) cfg.loginAccounts)}
+    EOF
+
+    chmod 600 ${passwdFile}
+  '';
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -165,15 +197,27 @@ in
       '';
     };
 
-    systemd.services.dovecot2.preStart = ''
-      rm -rf '${stateDir}/imap_sieve'
-      mkdir '${stateDir}/imap_sieve'
-      cp -p "${./dovecot/imap_sieve}"/*.sieve '${stateDir}/imap_sieve/'
-      for k in "${stateDir}/imap_sieve"/*.sieve ; do
-        ${pkgs.dovecot_pigeonhole}/bin/sievec "$k"
-      done
-      chown -R '${dovecot2Cfg.mailUser}:${dovecot2Cfg.mailGroup}' '${stateDir}/imap_sieve'
-    '';
+    systemd.services.gen-passwd-file = {
+      serviceConfig = {
+        ExecStart = genPasswdScript;
+        Type = "oneshot";
+      };
+    };
+
+    systemd.services.dovecot2 = {
+      after = [ "gen-passwd-file.service" ];
+      wants = [ "gen-passwd-file.service" ];
+      requires = [ "gen-passwd-file.service" ];
+      preStart = ''
+        rm -rf '${stateDir}/imap_sieve'
+        mkdir '${stateDir}/imap_sieve'
+        cp -p "${./dovecot/imap_sieve}"/*.sieve '${stateDir}/imap_sieve/'
+        for k in "${stateDir}/imap_sieve"/*.sieve ; do
+          ${pkgs.dovecot_pigeonhole}/bin/sievec "$k"
+        done
+        chown -R '${dovecot2Cfg.mailUser}:${dovecot2Cfg.mailGroup}' '${stateDir}/imap_sieve'
+      '';
+    };
 
     systemd.services.postfix.restartTriggers = [ passwdFile ];
   };

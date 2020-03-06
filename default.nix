@@ -56,10 +56,27 @@ in
           };
 
           hashedPassword = mkOption {
-            type = types.str;
+            type = with types; nullOr str;
+            default = null;
             example = "$6$evQJs5CFQyPAW09S$Cn99Y8.QjZ2IBnSu4qf1vBxDRWkaIZWOtmu1Ddsm3.H3CFpeVc0JU4llIq8HQXgeatvYhh5O33eWG3TSpjzu6/";
             description = ''
-              Hashed password. Use `mkpasswd` as follows
+              The user's hashed password. Use `mkpasswd` as follows
+
+              ```
+              mkpasswd -m sha-512 "super secret password"
+              ```
+
+              Warning: this is stored in plaintext in the Nix store!
+              Use `hashedPasswordFile` instead.
+            '';
+          };
+
+          hashedPasswordFile = mkOption {
+            type = with types; nullOr path;
+            default = null;
+            example = "/run/keys/user1-passwordhash";
+            description = ''
+              A file containing the user's hashed password. Use `mkpasswd` as follows
 
               ```
               mkpasswd -m sha-512 "super secret password"
