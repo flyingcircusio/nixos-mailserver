@@ -32,6 +32,16 @@ in
           "milter_headers.conf" = { text = ''
               extended_spam_headers = yes;
           ''; };
+          "redis.conf" = { text = ''
+              servers = "${cfg.redis.address}:${toString cfg.redis.port}";
+          '' + (lib.optionalString (cfg.redis.password != null) ''
+              password = "${cfg.redis.password}";
+          ''); };
+          "classifier-bayes.conf" = { text = ''
+              cache {
+                backend = "redis";
+              }
+          ''; };
           "antivirus.conf" = lib.mkIf cfg.virusScanning { text = ''
               clamav {
                 action = "reject";
@@ -80,9 +90,12 @@ in
       };
 
     };
+
+    services.redis.enable = true;
+
     systemd.services.rspamd = {
-      requires = (lib.optional cfg.virusScanning "clamav-daemon.service");
-      after = (lib.optional cfg.virusScanning "clamav-daemon.service");
+      requires = [ "redis.service" ] ++ (lib.optional cfg.virusScanning "clamav-daemon.service");
+      after = [ "redis.service" ] ++ (lib.optional cfg.virusScanning "clamav-daemon.service");
     };
 
     systemd.services.postfix = {
