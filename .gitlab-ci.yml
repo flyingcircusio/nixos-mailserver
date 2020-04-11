@@ -7,59 +7,40 @@
     - ls -l /dev/kvm || true
     - touch /dev/kvm
   script:
-    - export NIX_PATH="nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixos-${VERSION}.tar.gz"
-    - nix-build --arg pkgs 'import tests/lib/pkgs.nokvm.nix' tests/${SUITE}.nix
-
-19-03-intern:
-  extends: .template
-  variables:
-    VERSION: "19.03"
-    SUITE:   "intern"
-
-19-03-extern:
-  extends: .template
-  variables:
-    VERSION: "19.03"
-    SUITE:   "extern"
-
-19-03-clamav:
-  extends: .template
-  variables:
-    VERSION: "19.03"
-    SUITE:   "clamav"
+    - nix-build tests/default.nix -A ${SUITE}.${VERSION} --arg nonKVM true
 
 19-09-intern:
   extends: .template
   variables:
-    VERSION: "19.09"
+    VERSION: "nixpkgs_19_09"
     SUITE:   "intern"
 
 19-09-extern:
   extends: .template
   variables:
-    VERSION: "19.09"
+    VERSION: "nixpkgs_19_09"
     SUITE:   "extern"
 
 19-09-clamav:
   extends: .template
   variables:
-    VERSION: "19.09"
+    VERSION: "nixpkgs_19_09"
     SUITE:   "clamav"
 
 unstable-intern:
   extends: .template
   variables:
-    VERSION: "unstable"
+    VERSION: "nixpkgs_unstable"
     SUITE:   "intern"
 
-unstable-extern:
+nixpkgs_unstable-extern:
   extends: .template
   variables:
-    VERSION: "unstable"
+    VERSION: "nixpkgs_unstable"
     SUITE:   "extern"
 
-unstable-clamav:
+nixpkgs_unstable-clamav:
   extends: .template
   variables:
-    VERSION: "unstable"
+    VERSION: "nixpkgs_unstable"
     SUITE:   "clamav"

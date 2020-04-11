@@ -1,5 +1,6 @@
+{ pkgs }:
+
 let
-    pkgs = (import <nixpkgs> { system = builtins.currentSystem; config = {}; });
     patchedMachinePM = pkgs.writeTextFile {
         name = "Machine.pm.patched-to-wait-longer-for-vm";
         text = builtins.replaceStrings ["alarm 600;"] ["alarm 1200;"] (builtins.readFile (<nixpkgs>+"/nixos/lib/test-driver/Machine.pm"));
