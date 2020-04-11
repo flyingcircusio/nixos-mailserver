@@ -211,7 +211,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
       $client->succeed("cat ~/.msmtprc >&2");
 
       # fetchmail returns EXIT_CODE 1 when no new mail
-      $client->succeed("fetchmail -v || [ \$? -eq 1 ] >&2");
+      $client->succeed("fetchmail --nosslcertck -v || [ \$? -eq 1 ] >&2");
 
       # Verify that mail can be sent and received before testing virus scanner
       $client->execute("rm ~/mail/*");
@@ -220,7 +220,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
       $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
       $client->execute("rm ~/mail/*");
       # fetchmail returns EXIT_CODE 0 when it retrieves mail
-      $client->succeed("fetchmail -v >&2");
+      $client->succeed("fetchmail --nosslcertck -v >&2");
       $client->execute("rm ~/mail/*");
 
       subtest "virus scan file", sub {

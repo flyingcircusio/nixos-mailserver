@@ -297,7 +297,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
 
       subtest "imap retrieving mail", sub {
           # fetchmail returns EXIT_CODE 1 when no new mail
-          $client->succeed("fetchmail -v || [ \$? -eq 1 ] >&2");
+          $client->succeed("fetchmail --nosslcertck -v || [ \$? -eq 1 ] >&2");
       };
 
       subtest "submission port send mail", sub {
@@ -310,7 +310,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
       subtest "imap retrieving mail 2", sub {
           $client->execute("rm ~/mail/*");
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v >&2");
+          $client->succeed("fetchmail --nosslcertck -v >&2");
       };
 
       subtest "remove sensitive information on submission port", sub {
@@ -334,7 +334,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
           $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email2 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v");
+          $client->succeed("fetchmail  --nosslcertck -v");
           $client->succeed("cat ~/mail/* >&2");
           # make sure it is dkim signed
           $client->succeed("grep DKIM ~/mail/*");
@@ -346,7 +346,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
           $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on postmaster\@example.com < /etc/root/email2 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v");
+          $client->succeed("fetchmail --nosslcertck -v");
       };
 
       subtest "catchAlls", sub {
@@ -355,7 +355,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
           $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lol\@example.com < /etc/root/email2 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v");
+          $client->succeed("fetchmail --nosslcertck -v");
 
           $client->execute("rm ~/mail/*");
           # send email from user1 to chuck
@@ -363,7 +363,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 1 when no new mail
           # if this succeeds, it means that user1 recieved the mail that was intended for chuck.
-          $client->fail("fetchmail -v");
+          $client->fail("fetchmail --nosslcertck -v");
       };
 
       subtest "extraVirtualAliases", sub {
@@ -372,14 +372,14 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
           $client->succeed("msmtp -a test5 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email4 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v");
+          $client->succeed("fetchmail --nosslcertck -v");
 
           $client->execute("rm ~/mail/*");
           # send email from user1 to multi-alias (user{1,2}@example.com)
           $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on multi-alias\@example.com < /etc/root/email5 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail -v");
+          $client->succeed("fetchmail --nosslcertck -v");
       };
 
       subtest "quota", sub {
@@ -389,7 +389,7 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
           $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < /etc/root/email2 >&2");
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->fail("fetchmail -v");
+          $client->fail("fetchmail --nosslcertck -v");
 
       };
 
