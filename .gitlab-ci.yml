@@ -1,6 +1,13 @@
-hydra:
+hydra-pr:
   only:
     - merge_requests
   image: nixos/nix
   script:
     - nix run -f channel:nixos-unstable hydra-cli -c hydra-cli -H https://hydra.nix-community.org jobset-wait simple-nixos-mailserver $CI_MERGE_REQUEST_IID
+
+hydra-master:
+  only:
+    - master
+  image: nixos/nix
+  script:
+    - nix run -f channel:nixos-unstable hydra-cli -c hydra-cli -H https://hydra.nix-community.org jobset-wait simple-nixos-mailserver master
