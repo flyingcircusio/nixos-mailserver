@@ -7,9 +7,6 @@
 # - intern.nixpkgs_20.03
 # - intern.nixpkgs_unstable
 
-# Modify pkgs to run the tests on non KVM machines
-{ noKVM ? false }: 
-
 with builtins;
 
 let
@@ -25,15 +22,10 @@ let
   genTest = testName: release:
   let
     pkgs = releases."${release}";
-    noKVMPkgs = p: if noKVM
-      then import ./lib/pkgs.nokvm.nix { pkgs = p; }
-      else p;
     test = pkgs.callPackage (./. + "/${testName}.nix") { };
   in {
     "name"= builtins.replaceStrings ["." "-"] ["_" "_"] release;
-    "value"= test {
-      pkgs = (noKVMPkgs pkgs);
-    };
+    "value"= test { inherit pkgs; };
   };
 
   releaseNames = [
