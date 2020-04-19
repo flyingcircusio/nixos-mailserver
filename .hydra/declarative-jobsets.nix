@@ -17,7 +17,7 @@ let
       keepnr = 1;
       type = 0;
       inputs = {
-        cloudwatt = {
+        snm = {
           type = "git";
           value = "${info.target_repo_url} merge-requests/${info.iid}/head";
           emailresponsible = false;
