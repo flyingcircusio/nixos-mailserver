@@ -143,12 +143,13 @@ in
             default = false;
             description = ''
               Specifies if the account should be a send-only account.
-              Emails sent to send-only accounts will be rejected with the
-              rejectMessage stating the reason.
+              Emails sent to send-only accounts will be rejected from
+              unauthorized senders with the sendOnlyRejectMessage
+              stating the reason.
             '';
           };
 
-          rejectMessage = mkOption {
+          sendOnlyRejectMessage = mkOption {
             type = types.str;
             default = "This account cannot receive emails.";
             description = ''

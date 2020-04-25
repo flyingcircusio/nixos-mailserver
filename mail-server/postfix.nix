@@ -52,7 +52,7 @@ let
 
   # denied_recipients_postfix :: [ String ]
   denied_recipients_postfix = (map
-    (acct: "${acct.name} REJECT ${acct.rejectMessage}")
+    (acct: "${acct.name} REJECT ${acct.sendOnlyRejectMessage}")
     (lib.filter (acct: acct.sendOnly) (lib.attrValues cfg.loginAccounts)));
   denied_recipients_file = builtins.toFile "denied_recipients" (lib.concatStringsSep "\n" denied_recipients_postfix);
 
