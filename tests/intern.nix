@@ -16,6 +16,24 @@
 
 { pkgs ? import <nixpkgs> {}}:
 
+let
+  sendMail = pkgs.writeTextFile {
+    "name" = "send-mail-to-send-only-account";
+    "text" = ''
+      EHLO mail.example.com
+      MAIL FROM: none@example.com
+      RCPT TO: send-only@example.com
+      QUIT
+    '';
+  };
+
+  hashPassword = password: pkgs.runCommand
+    "password-${password}-hashed"
+    { buildInputs = [ pkgs.mkpasswd ]; } ''
+      mkpasswd -m sha-512 ${password} > $out
+    '';
+
+in
 import (pkgs.path + "/nixos/tests/make-test.nix") {
 
   machine =
@@ -35,6 +53,10 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
               "user1@example.com" = {
                   hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
               };
+              "send-only@example.com" = {
+                  hashedPasswordFile = hashPassword "send-only";
+                  sendOnly = true;
+              };
           };
 
           vmailGroupName = "vmail";
@@ -51,5 +73,11 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
             $machine->succeed("getent group vmail | grep 5000");
       };
 
+      subtest "mail to send only accounts is rejected", sub {
+            $machine->waitForOpenPort(25);
+            # TODO put this blocking into the systemd units?
+            $machine->waitUntilSucceeds("timeout 1 ${pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
+            $machine->succeed("cat ${sendMail} | ${pkgs.netcat-gnu}/bin/nc localhost 25 | grep -q 'This account cannot receive emails'" );
+      };
     '';
 }
