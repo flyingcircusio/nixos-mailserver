@@ -44,6 +44,8 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
             ./lib/config.nix
         ];
 
+        virtualisation.memorySize = 1024;
+
         mailserver = {
           enable = true;
           fqdn = "mail.example.com";
