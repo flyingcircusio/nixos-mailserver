@@ -228,7 +228,8 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
       };
 
       subtest "virus scan email", sub {
-          $client->succeed("msmtp -a user2 user1\@example.com < /etc/root/virus-email 2>&1 | grep \"server message: 554 5\\.7\\.1 clamav: virus found: .*\\(Eicar\\|EICAR\\)\" >&2"); # for some reason this ID is nondetermistic...
+          $client->succeed("msmtp -a user2 user1\@example.com < /etc/root/virus-email 2>&1 | tee /dev/stderr | grep \"server message: 554 5\\.7\\.1\" >&2");
+          $server->succeed("journalctl -u rspamd | grep -i eicar");
           # give the mail server some time to process the mail
           $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
       };
