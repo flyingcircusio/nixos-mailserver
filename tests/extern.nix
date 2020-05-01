@@ -26,6 +26,8 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
                 ./lib/config.nix
             ];
 
+            virtualisation.memorySize = 1024;
+
             services.rsyslogd = {
               enable = true;
               defaultConfig = ''
