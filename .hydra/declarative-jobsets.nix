@@ -47,6 +47,26 @@ let
         };
       };
     };
+    "nixos-19.09" = {
+      description = "Build the nixos-19.09 branch of Simple NixOS MailServer";
+      checkinterval = "60";
+      enabled = "1";
+      nixexprinput = "snm";
+      nixexprpath = ".hydra/default.nix";
+      schedulingshares = 100;
+      enableemail = false;
+      emailoverride = "";
+      keepnr = 3;
+      hidden = false;
+      type = 0;
+      inputs = {
+        snm = {
+          value = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver nixos-19.09";
+          type = "git";
+          emailresponsible = false;
+        };
+      };
+    };
   };
 
 in {
