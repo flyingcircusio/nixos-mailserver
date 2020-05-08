@@ -1,9 +1,7 @@
 # Generate an attribute sets containing all tests for all releaeses
 # It looks like:
-# - extern.nixpkgs_19_09
 # - extern.nixpkgs_20.03
 # - extern.nixpkgs_unstable
-# - intern.nixpkgs_19_09
 # - intern.nixpkgs_20.03
 # - intern.nixpkgs_unstable
 
@@ -29,7 +27,6 @@ let
   };
 
   releaseNames = [
-    "nixpkgs-19.09"
     "nixpkgs-20.03"
     "nixpkgs-unstable"
   ];
