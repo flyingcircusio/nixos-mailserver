@@ -3,11 +3,16 @@
 [![pipeline status](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/badges/master/pipeline.svg)](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/commits/master)
 
 
-## Stable Releases
+## Release branches
 
-* [SNM v2.3.0](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.3.0)
+For each NixOS release, we publish a branch. You then have to use the
+SNM branch corresponding to your NixOS version.
 
-[Latest Release (Candidate)](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/tags/v2.3.0)
+*  For NixOS 19.09: [SNM branch
+   `nixos-19.09`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-19.09)
+*  For NixOS unstable: [SNM branch
+   `master`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/master)
+
 
 [Subscribe to SNM Announcement List](https://www.freelists.org/list/snm)
 This is a very low volume list where new releases of SNM are announced, so you
@@ -68,8 +73,10 @@ See the [mailing list archive](https://www.freelists.org/archive/snm/)
 {
   imports = [
     (builtins.fetchTarball {
-      url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/v2.3.0/nixos-mailserver-v2.3.0.tar.gz";
-      sha256 = "0lpz08qviccvpfws2nm83n7m2r8add2wvfg9bljx9yxx8107r919";
+      # Pick a commit from the branch you are interested in
+      url = "https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/archive/A-COMMIT-ID/nixos-mailserver-A-COMMIT-ID.tar.gz";
+      # And set its hash
+      sha256 = "0000000000000000000000000000000000000000000000000000";
     })
   ];
 
