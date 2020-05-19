@@ -182,7 +182,7 @@ in
       default = {};
     };
 
-    lmptSaveToDetailMailbox = mkOption {
+    lmtpSaveToDetailMailbox = mkOption {
       type = types.enum ["yes" "no"];
       default = "yes";
       description = ''
