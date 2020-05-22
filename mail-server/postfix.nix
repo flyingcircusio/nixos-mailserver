@@ -138,81 +138,85 @@ in
       virtual =
         (lib.concatStringsSep "\n" (all_valiases_postfix ++ catchAllPostfix));
 
-      extraConfig =
-      ''
+      config = {
         # Extra Config
-        mydestination =
-        recipient_delimiter = +
-        smtpd_banner = ${fqdn} ESMTP NO UCE
-        disable_vrfy_command = yes
-        message_size_limit = ${builtins.toString cfg.messageSizeLimit}
+        mydestination = "";
+        recipient_delimiter = "+";
+        smtpd_banner = "${fqdn} ESMTP NO UCE";
+        disable_vrfy_command = true;
+        message_size_limit = toString cfg.messageSizeLimit;
 
         # virtual mail system
-        virtual_uid_maps = static:5000
-        virtual_gid_maps = static:5000
-        virtual_mailbox_base = ${mailDirectory}
-        virtual_mailbox_domains = ${vhosts_file}
-        virtual_mailbox_maps = ${mappedFile "valias"}
-        virtual_transport = lmtp:unix:/run/dovecot2/dovecot-lmtp
+        virtual_uid_maps = "static:5000";
+        virtual_gid_maps = "static:5000";
+        virtual_mailbox_base = mailDirectory;
+        virtual_mailbox_domains = vhosts_file;
+        virtual_mailbox_maps = mappedFile "valias";
+        virtual_transport = "lmtp:unix:/run/dovecot2/dovecot-lmtp";
 
         # sasl with dovecot
-        smtpd_sasl_type = dovecot
-        smtpd_sasl_path = /run/dovecot2/auth
-        smtpd_sasl_auth_enable = yes
-        smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+        smtpd_sasl_type = "dovecot";
+        smtpd_sasl_path = "/run/dovecot2/auth";
+        smtpd_sasl_auth_enable = true;
+        smtpd_relay_restrictions = [
+          "permit_mynetworks" "permit_sasl_authenticated" "reject_unauth_destination"
+        ];
 
-        policy-spf_time_limit = 3600s
+        policy-spf_time_limit = "3600s";
 
         # reject selected senders
-        smtpd_sender_restrictions = check_sender_access ${mappedFile "reject_senders"}
+        smtpd_sender_restrictions = [
+          "check_sender_access ${mappedFile "reject_senders"}"
+        ];
 
         # quota and spf checking
-        smtpd_recipient_restrictions =
-          check_recipient_access ${mappedFile "denied_recipients"},
-          check_recipient_access ${mappedFile "reject_recipients"},
-          check_policy_service inet:localhost:12340,
-          check_policy_service unix:private/policy-spf
+        smtpd_recipient_restrictions = [
+          "check_recipient_access ${mappedFile "denied_recipients"}"
+          "check_recipient_access ${mappedFile "reject_recipients"}"
+          "check_policy_service inet:localhost:12340"
+          "check_policy_service unix:private/policy-spf"
+        ];
 
         # TLS settings, inspired by https://github.com/jeaye/nix-files
         # Submission by mail clients is handled in submissionOptions
-        smtpd_tls_security_level = may
+        smtpd_tls_security_level = "may";
 
         # strong might suffice and is computationally less expensive
-        smtpd_tls_eecdh_grade = ultra
+        smtpd_tls_eecdh_grade = "ultra";
 
         # Disable obselete protocols
-        smtpd_tls_protocols = TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
-        smtp_tls_protocols = TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
-        smtpd_tls_mandatory_protocols = TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
-        smtp_tls_mandatory_protocols = TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3
+        smtpd_tls_protocols = "TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3";
+        smtp_tls_protocols = "TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3";
+        smtpd_tls_mandatory_protocols = "TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3";
+        smtp_tls_mandatory_protocols = "TLSv1.3, TLSv1.2, TLSv1.1, !TLSv1, !SSLv2, !SSLv3";
 
-        smtp_tls_ciphers = high
-        smtpd_tls_ciphers = high
-        smtp_tls_mandatory_ciphers = high
-        smtpd_tls_mandatory_ciphers = high
+        smtp_tls_ciphers = "high";
+        smtpd_tls_ciphers = "high";
+        smtp_tls_mandatory_ciphers = "high";
+        smtpd_tls_mandatory_ciphers = "high";
 
         # Disable deprecated ciphers
-        smtpd_tls_mandatory_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
-        smtpd_tls_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
-        smtp_tls_mandatory_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
-        smtp_tls_exclude_ciphers = MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL
+        smtpd_tls_mandatory_exclude_ciphers = "MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL";
+        smtpd_tls_exclude_ciphers = "MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL";
+        smtp_tls_mandatory_exclude_ciphers = "MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL";
+        smtp_tls_exclude_ciphers = "MD5, DES, ADH, RC4, PSD, SRP, 3DES, eNULL, aNULL";
 
-        tls_preempt_cipherlist = yes
+        tls_preempt_cipherlist = true;
 
         # Allowing AUTH on a non encrypted connection poses a security risk
-        smtpd_tls_auth_only = yes
+        smtpd_tls_auth_only = true;
         # Log only a summary message on TLS handshake completion
-        smtpd_tls_loglevel = 1
+        smtpd_tls_loglevel = "1";
 
         # Configure a non blocking source of randomness
-        tls_random_source = dev:/dev/urandom
+        tls_random_source = "dev:/dev/urandom";
 
-        smtpd_milters = ${lib.concatStringsSep "," smtpdMilters}
-        ${lib.optionalString cfg.dkimSigning "non_smtpd_milters = unix:/run/opendkim/opendkim.sock"}
-        milter_protocol = 6
-        milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_type} {auth_authen} {auth_author} {mail_addr} {mail_host} {mail_mailer}
-      '';
+        smtpd_milters = smtpdMilters;
+        non_smtpd_milters = lib.mkIf cfg.dkimSigning ["unix:/run/opendkim/opendkim.sock"];
+        milter_protocol = "6";
+        milter_mail_macros = "i {mail_addr} {client_addr} {client_name} {auth_type} {auth_authen} {auth_author} {mail_addr} {mail_host} {mail_mailer}";
 
+      };
       submissionOptions =
       {
         smtpd_tls_security_level = "encrypt";
