@@ -8,11 +8,16 @@
 For each NixOS release, we publish a branch. You then have to use the
 SNM branch corresponding to your NixOS version.
 
-*  For NixOS 19.09: [SNM branch
-   `nixos-19.09`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-19.09)
-*  For NixOS unstable: [SNM branch
-   `master`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/master)
-
+* For NixOS 20.03
+   -  Use the [SNM branch `nixos-20.03`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-20.03)
+   - [Release notes](#nixos-2003)
+* For NixOS 19.09
+   - Use the [SNM branch `nixos-19.09`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-19.09)
+* For NixOS unstable
+   - Use the [SNM branch `master`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/master)
+   - This branch is currently still supporting the NixOS release 20.03
+     but we could remove this support on any NixOS unstable breaking
+     change.
 
 [Subscribe to SNM Announcement List](https://www.freelists.org/list/snm)
 This is a very low volume list where new releases of SNM are announced, so you
@@ -113,6 +118,23 @@ Checkout the [Complete Backup Guide](https://gitlab.com/simple-nixos-mailserver/
 ## Development
 
 See the [How to Develop SNM](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/How-to-Develop-SNM) wiki page.
+
+## Release notes
+
+### nixos-20.03
+
+- Rspamd is upgraded to 2.0 which deprecates the SQLite Bayes
+  backend. We then moved to the Redis backend (the default since
+  Rspamd 2.0). If you don't want to relearn the Redis backend from the
+  scratch, we could manually run
+
+      rspamadm statconvert --spam-db /var/lib/rspamd/bayes.spam.sqlite --ham-db /var/lib/rspamd/bayes.ham.sqlite -h 127.0.0.1:6379 --symbol-ham BAYES_HAM --symbol-spam BAYES_SPAM
+
+  See the [Rspamd migration
+  notes](https://rspamd.com/doc/migration.html#migration-to-rspamd-20)
+  and [this SNM Merge
+  Request](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/merge_requests/164)
+  for details.
 
 ## Contributors
 See the [contributor tab](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/graphs/master)
