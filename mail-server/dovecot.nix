@@ -129,6 +129,7 @@ in
 
         mail_access_groups = ${vmailGroupName}
         ssl = required
+        ssl_min_protocol = TLSv1.2
 
         service lmtp {
           unix_listener dovecot-lmtp {
