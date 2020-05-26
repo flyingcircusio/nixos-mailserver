@@ -137,7 +137,7 @@ See the [How to Develop SNM](https://gitlab.com/simple-nixos-mailserver/nixos-ma
   for details.
 
 ## Contributors
-See the [contributor tab](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/graphs/master)
+See the [contributor tab](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/graphs/master)
 
 ### Alternative Implementations
  * [NixCloud Webservices](https://github.com/nixcloud/nixcloud-webservices)
