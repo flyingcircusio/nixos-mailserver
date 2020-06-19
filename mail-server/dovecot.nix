@@ -199,18 +199,9 @@ in
       '';
     };
 
-    systemd.services.gen-passwd-file = {
-      serviceConfig = {
-        ExecStart = genPasswdScript;
-        Type = "oneshot";
-      };
-    };
-
     systemd.services.dovecot2 = {
-      after = [ "gen-passwd-file.service" ];
-      wants = [ "gen-passwd-file.service" ];
-      requires = [ "gen-passwd-file.service" ];
       preStart = ''
+        ${genPasswdScript}
         rm -rf '${stateDir}/imap_sieve'
         mkdir '${stateDir}/imap_sieve'
         cp -p "${./dovecot/imap_sieve}"/*.sieve '${stateDir}/imap_sieve/'
@@ -221,6 +212,6 @@ in
       '';
     };
 
-    systemd.services.postfix.restartTriggers = [ passwdFile ];
+    systemd.services.postfix.restartTriggers = [ genPasswdScript ];
   };
 }
