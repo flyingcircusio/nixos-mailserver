@@ -81,5 +81,9 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
             $machine->waitUntilSucceeds("timeout 1 ${pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
             $machine->succeed("cat ${sendMail} | ${pkgs.netcat-gnu}/bin/nc localhost 25 | grep -q 'This account cannot receive emails'" );
       };
+
+      subtest "rspamd controller serves web ui", sub {
+            $machine->succeed("${pkgs.curl}/bin/curl --unix-socket /run/rspamd/worker-controller.sock http://localhost/ | grep -q '<body>'" );
+      };
     '';
 }

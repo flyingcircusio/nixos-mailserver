@@ -87,6 +87,9 @@ in
           mode = "0666";
         }];
         includes = [];
+        extraConfig = ''
+          static_dir = "''${WWWDIR}"; # Serve the web UI static assets
+        '';
       };
 
     };
