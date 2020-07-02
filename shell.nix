@@ -1,9 +1,11 @@
-{ nixpkgs ? <nixpkgs>, system ? builtins.currentSystem }:
-
-with (import nixpkgs { inherit system; }); stdenv.mkDerivation rec {
-  name = "nixos-mailserver-env";
-  env = buildEnv { name = name; paths = buildInputs; };
+let
+  nixpkgs = (import ./nix/sources.nix).nixpkgs-unstable;
+  pkgs = import nixpkgs {};
+in
+pkgs.mkShell {
   buildInputs = with pkgs; [
-    jq clamav
+  (python3.withPackages(p: [p.sphinx p.sphinx_rtd_theme]))
+  niv
+  jq clamav
   ];
 }
