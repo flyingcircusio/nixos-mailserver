@@ -23,7 +23,9 @@ in
   config = with cfg; lib.mkIf enable {
 
     networking.firewall = {
-      allowedTCPPorts = [ 25 587 ]
+      allowedTCPPorts = [ 25 ]
+        ++ lib.optional enableSubmission 587
+        ++ lib.optional enableSubmissionSsl 465
         ++ lib.optional enableImap 143
         ++ lib.optional enableImapSsl 993
         ++ lib.optional enablePop3 110

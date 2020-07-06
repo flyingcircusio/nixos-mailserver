@@ -84,8 +84,8 @@ in
   config = with cfg; lib.mkIf enable {
     services.dovecot2 = {
       enable = true;
-      enableImap = enableImap;
-      enablePop3 = enablePop3;
+      enableImap = enableImap || enableImapSsl;
+      enablePop3 = enablePop3 || enablePop3Ssl;
       enablePAM = false;
       enableQuota = true;
       mailGroup = vmailGroupName;
@@ -95,7 +95,7 @@ in
       sslServerKey = keyPath;
       enableLmtp = true;
       modules = [ pkgs.dovecot_pigeonhole ];
-      protocols = [ "sieve" ];
+      protocols = lib.optional cfg.enableManageSieve "sieve";
 
       sieveScripts = {
         after = builtins.toFile "spam.sieve" ''
@@ -116,6 +116,45 @@ in
           mail_debug = yes
           auth_debug = yes
           verbose_ssl = yes
+        ''}
+
+        ${lib.optionalString (cfg.enableImap || cfg.enableImapSsl) ''
+          service imap-login {
+            inet_listener imap {
+              ${if cfg.enableImap then ''
+                port = 143
+              '' else ''
+                port = 0
+              ''}
+            }
+            inet_listener imaps {
+              ${if cfg.enableImapSsl then ''
+                port = 993
+                ssl = yes
+              '' else ''
+                port = 0
+              ''}
+            }
+          }
+        ''}
+        ${lib.optionalString (cfg.enablePop3 || cfg.enablePop3Ssl) ''
+          service pop3-login {
+            inet_listener pop3 {
+              ${if cfg.enablePop3 then ''
+                port = 110
+              '' else ''
+                port = 0
+              ''}
+            }
+            inet_listener pop3s {
+              ${if cfg.enablePop3Ssl then ''
+                port = 995
+                ssl = yes
+              '' else ''
+                port = 0
+              ''}
+            }
+          }
         ''}
 
         protocol imap {

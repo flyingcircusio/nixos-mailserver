@@ -35,12 +35,15 @@ D9FE 4119 F082 6F15 93BD  BD36 6162 DBA5 635E A16A
  * [x] Multiple Domains
  * Postfix MTA
     - [x] smtp on port 25
-    - [x] submission port 587
+    - [x] submission tls on port 465
+    - [x] submission starttls on port 587
     - [x] lmtp with dovecot
  * Dovecot
     - [x] maildir folders
-    - [x] imap starttls on port 143
-    - [x] pop3 starttls on port 110
+    - [x] imap with tls on port 993
+    - [x] pop3 with tls on port 995
+    - [x] imap with starttls on port 143
+    - [x] pop3 with starttls on port 110
  * Certificates
     - [x] manual certificates
     - [x] on the fly creation

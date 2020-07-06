@@ -396,21 +396,31 @@ in
       type = types.bool;
       default = true;
       description = ''
-        Whether to enable imap / pop3. Both variants are only supported in the
-        (sane) startTLS configuration. The ports are
-
-        110 - Pop3
-        143 - IMAP
-        587 - SMTP with login
+        Whether to enable IMAP with STARTTLS on port 143.
       '';
     };
 
     enableImapSsl = mkOption {
       type = types.bool;
-      default = false;
+      default = true;
       description = ''
-        Whether to enable IMAPS, setting this option to true will open port 993
-        in the firewall.
+        Whether to enable IMAP with TLS in wrapper-mode on port 993.
+      '';
+    };
+
+    enableSubmission = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to enable SMTP with STARTTLS on port 587.
+      '';
+    };
+
+    enableSubmissionSsl = mkOption {
+      type = types.bool;
+      default = true;
+      description = ''
+        Whether to enable SMTP with TLS in wrapper-mode on port 465.
       '';
     };
 
@@ -418,12 +428,7 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to enable POP3. Both variants are only supported in the (sane)
-        startTLS configuration. The ports are
-
-        110 - Pop3
-        143 - IMAP
-        587 - SMTP with login
+        Whether to enable POP3 with STARTTLS on port on port 110.
       '';
     };
 
@@ -431,8 +436,7 @@ in
       type = types.bool;
       default = false;
       description = ''
-        Whether to enable POP3S, setting this option to true will open port 995
-        in the firewall.
+        Whether to enable POP3 with TLS in wrapper-mode on port 995.
       '';
     };
 

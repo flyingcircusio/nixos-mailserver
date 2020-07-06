@@ -121,6 +121,21 @@ let
   ''));
 
   mappedFile = name: "hash:/var/lib/postfix/conf/${name}";
+
+  submissionOptions =
+    {
+      smtpd_tls_security_level = "encrypt";
+      smtpd_sasl_auth_enable = "yes";
+      smtpd_sasl_type = "dovecot";
+      smtpd_sasl_path = "/run/dovecot2/auth";
+      smtpd_sasl_security_options = "noanonymous";
+      smtpd_sasl_local_domain = "$myhostname";
+      smtpd_client_restrictions = "permit_sasl_authenticated,reject";
+      smtpd_sender_login_maps = "hash:/etc/postfix/vaccounts";
+      smtpd_sender_restrictions = "reject_sender_login_mismatch";
+      smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
+      cleanup_service_name = "submission-header-cleanup";
+    };
 in
 {
   config = with cfg; lib.mkIf enable {
@@ -136,7 +151,8 @@ in
       mapFiles."reject_recipients" = reject_recipients_file;
       sslCert = certificatePath;
       sslKey = keyPath;
-      enableSubmission = true;
+      enableSubmission = cfg.enableSubmission;
+      enableSubmissions = cfg.enableSubmissionSsl;
       virtual =
         (lib.concatStringsSep "\n" (all_valiases_postfix ++ catchAllPostfix ++ forwards));
 
@@ -219,20 +235,10 @@ in
         milter_mail_macros = "i {mail_addr} {client_addr} {client_name} {auth_type} {auth_authen} {auth_author} {mail_addr} {mail_host} {mail_mailer}";
 
       };
-      submissionOptions =
-      {
-        smtpd_tls_security_level = "encrypt";
-        smtpd_sasl_auth_enable = "yes";
-        smtpd_sasl_type = "dovecot";
-        smtpd_sasl_path = "/run/dovecot2/auth";
-        smtpd_sasl_security_options = "noanonymous";
-        smtpd_sasl_local_domain = "$myhostname";
-        smtpd_client_restrictions = "permit_sasl_authenticated,reject";
-        smtpd_sender_login_maps = "hash:/etc/postfix/vaccounts";
-        smtpd_sender_restrictions = "reject_sender_login_mismatch";
-        smtpd_recipient_restrictions = "reject_non_fqdn_recipient,reject_unknown_recipient_domain,permit_sasl_authenticated,reject";
-        cleanup_service_name = "submission-header-cleanup";
-      };
+
+      submissionOptions = submissionOptions;
+      submissionsOptions = submissionOptions;
+
       masterConfig = {
         "policy-spf" = {
           type = "unix";
