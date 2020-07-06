@@ -109,15 +109,15 @@ For a complete list of options, see `default.nix`.
 
 
 ## How to Set Up a 10/10 Mail Server Guide
-Check out the [Complete Setup Guide](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/A-Complete-Setup-Guide) in the project's wiki.
+Check out the [Complete Setup Guide](https://nixos-mailserver.readthedocs.io/en/latest/setup-guide.html) in the project's documentation.
 
 ## How to Backup
 
-Checkout the [Complete Backup Guide](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/A-Complete-Backup-Guide). Backups are easy with `SNM`.
+Checkout the [Complete Backup Guide](https://nixos-mailserver.readthedocs.io/en/latest/backup-guide.html). Backups are easy with `SNM`.
 
 ## Development
 
-See the [How to Develop SNM](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/wikis/How-to-Develop-SNM) wiki page.
+See the [How to Develop SNM](https://nixos-mailserver.readthedocs.io/en/latest/howto-develop.html) wiki page.
 
 ## Release notes
 
