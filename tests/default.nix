@@ -23,7 +23,7 @@ let
     test = pkgs.callPackage (./. + "/${testName}.nix") { };
   in {
     "name"= builtins.replaceStrings ["." "-"] ["_" "_"] release;
-    "value"= test { inherit pkgs; };
+    "value"= test;
   };
 
   releaseNames = [

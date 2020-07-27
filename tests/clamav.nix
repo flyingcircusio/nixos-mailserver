@@ -16,8 +16,8 @@
 
 { pkgs ? import <nixpkgs> {}}:
 
-import (pkgs.path + "/nixos/tests/make-test.nix") {
-
+pkgs.nixosTest {
+  name = "clamav";
   nodes = {
     server = { config, pkgs, lib, ... }:
       let
@@ -73,7 +73,6 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
 
             mailserver = {
               enable = true;
-              debug = true;
               fqdn = "mail.example.com";
               domains = [ "example.com" "example2.com" ];
               virusScanning = true;
@@ -194,52 +193,56 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
 
   testScript = { nodes, ... }:
       ''
-      startAll;
+      start_all()
 
-      $server->waitForUnit("multi-user.target");
-      $client->waitForUnit("multi-user.target");
+      server.wait_for_unit("multi-user.target")
+      client.wait_for_unit("multi-user.target")
 
       # TODO put this blocking into the systemd units? I am not sure if rspamd already waits for the clamd socket.
-      $server->waitUntilSucceeds("timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
-      $server->waitUntilSucceeds("timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/clamav/clamd.ctl < /dev/null; [ \$? -eq 124 ]");
+      server.wait_until_succeeds(
+          "timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ $? -eq 124 ]"
+      )
+      server.wait_until_succeeds(
+          "timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/clamav/clamd.ctl < /dev/null; [ $? -eq 124 ]"
+      )
 
-      $client->execute("cp -p /etc/root/.* ~/");
-      $client->succeed("mkdir -p ~/mail");
-      $client->succeed("ls -la ~/ >&2");
-      $client->succeed("cat ~/.fetchmailrc >&2");
-      $client->succeed("cat ~/.procmailrc >&2");
-      $client->succeed("cat ~/.msmtprc >&2");
+      client.execute("cp -p /etc/root/.* ~/")
+      client.succeed("mkdir -p ~/mail")
+      client.succeed("ls -la ~/ >&2")
+      client.succeed("cat ~/.fetchmailrc >&2")
+      client.succeed("cat ~/.procmailrc >&2")
+      client.succeed("cat ~/.msmtprc >&2")
 
       # fetchmail returns EXIT_CODE 1 when no new mail
-      $client->succeed("fetchmail --nosslcertck -v || [ \$? -eq 1 ] >&2");
+      client.succeed("fetchmail --nosslcertck -v || [ $? -eq 1 ] >&2")
 
       # Verify that mail can be sent and received before testing virus scanner
-      $client->execute("rm ~/mail/*");
-      $client->succeed("msmtp -a user2 user1\@example.com < /etc/root/safe-email >&2");
+      client.execute("rm ~/mail/*")
+      client.succeed("msmtp -a user2 user1@example.com < /etc/root/safe-email >&2")
       # give the mail server some time to process the mail
-      $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
-      $client->execute("rm ~/mail/*");
+      server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
+      client.execute("rm ~/mail/*")
       # fetchmail returns EXIT_CODE 0 when it retrieves mail
-      $client->succeed("fetchmail --nosslcertck -v >&2");
-      $client->execute("rm ~/mail/*");
+      client.succeed("fetchmail --nosslcertck -v >&2")
+      client.execute("rm ~/mail/*")
 
-      subtest "virus scan file", sub {
-          $server->succeed("clamdscan \$(readlink -f /etc/root/eicar.com.txt) | grep \"Txt\\.Malware\\.Agent-1787597 FOUND\" >&2");
-      };
+      with subtest("virus scan file"):
+          server.succeed(
+              'clamdscan $(readlink -f /etc/root/eicar.com.txt) | grep "Txt\\.Malware\\.Agent-1787597 FOUND" >&2'
+          )
 
-      subtest "virus scan email", sub {
-          $client->succeed("msmtp -a user2 user1\@example.com < /etc/root/virus-email 2>&1 | tee /dev/stderr | grep \"server message: 554 5\\.7\\.1\" >&2");
-          $server->succeed("journalctl -u rspamd | grep -i eicar");
+      with subtest("virus scan email"):
+          client.succeed(
+              'msmtp -a user2 user1\@example.com < /etc/root/virus-email 2>&1 | tee /dev/stderr | grep "server message: 554 5\\.7\\.1" >&2'
+          )
+          server.succeed("journalctl -u rspamd | grep -i eicar")
           # give the mail server some time to process the mail
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
-      };
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
 
-      subtest "no warnings or errors", sub {
-          $server->fail("journalctl -u postfix | grep -i error >&2");
-          $server->fail("journalctl -u postfix | grep -i warning >&2");
-          $server->fail("journalctl -u dovecot2 | grep -i error >&2");
-          $server->fail("journalctl -u dovecot2 | grep -i warning >&2");
-      };
-
+      with subtest("no warnings or errors"):
+          server.fail("journalctl -u postfix | grep -i error >&2")
+          server.fail("journalctl -u postfix | grep -i warning >&2")
+          server.fail("journalctl -u dovecot2 | grep -i error >&2")
+          server.fail("journalctl -u dovecot2 | grep -i warning >&2")
     '';
 }

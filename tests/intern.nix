@@ -34,56 +34,57 @@ let
     '';
 
 in
-import (pkgs.path + "/nixos/tests/make-test.nix") {
+pkgs.nixosTest {
+  name = "intern";
+  nodes = {
+    machine = { config, pkgs, ... }: {
+      imports = [
+        ./../default.nix
+        ./lib/config.nix
+      ];
 
-  machine =
-    { config, pkgs, ... }:
-    {
-        imports = [
-            ./../default.nix
-            ./lib/config.nix
-        ];
+      virtualisation.memorySize = 1024;
 
-        virtualisation.memorySize = 1024;
+      mailserver = {
+        enable = true;
+        fqdn = "mail.example.com";
+        domains = [ "example.com" ];
 
-        mailserver = {
-          enable = true;
-          fqdn = "mail.example.com";
-          domains = [ "example.com" ];
-
-          loginAccounts = {
-              "user1@example.com" = {
-                  hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
-              };
-              "send-only@example.com" = {
-                  hashedPasswordFile = hashPassword "send-only";
-                  sendOnly = true;
-              };
+        loginAccounts = {
+          "user1@example.com" = {
+            hashedPassword = "$6$/z4n8AQl6K$kiOkBTWlZfBd7PvF5GsJ8PmPgdZsFGN1jPGZufxxr60PoR0oUsrvzm2oQiflyz5ir9fFJ.d/zKm/NgLXNUsNX/";
           };
-
-          vmailGroupName = "vmail";
-          vmailUID = 5000;
+          "send-only@example.com" = {
+            hashedPasswordFile = hashPassword "send-only";
+            sendOnly = true;
+          };
         };
+
+        vmailGroupName = "vmail";
+        vmailUID = 5000;
+      };
     };
+  };
+  testScript = ''
+    machine.start()
+    machine.wait_for_unit("multi-user.target")
 
-  testScript =
-    ''
-      $machine->start;
-      $machine->waitForUnit("multi-user.target");
+    with subtest("vmail gid is set correctly"):
+        machine.succeed("getent group vmail | grep 5000")
 
-      subtest "vmail gid is set correctly", sub {
-            $machine->succeed("getent group vmail | grep 5000");
-      };
+    with subtest("mail to send only accounts is rejected"):
+        machine.wait_for_open_port(25)
+        # TODO put this blocking into the systemd units
+        machine.wait_until_succeeds(
+            "timeout 1 ${pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ $? -eq 124 ]"
+        )
+        machine.succeed(
+            "cat ${sendMail} | ${pkgs.netcat-gnu}/bin/nc localhost 25 | grep -q 'This account cannot receive emails'"
+        )
 
-      subtest "mail to send only accounts is rejected", sub {
-            $machine->waitForOpenPort(25);
-            # TODO put this blocking into the systemd units?
-            $machine->waitUntilSucceeds("timeout 1 ${pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
-            $machine->succeed("cat ${sendMail} | ${pkgs.netcat-gnu}/bin/nc localhost 25 | grep -q 'This account cannot receive emails'" );
-      };
-
-      subtest "rspamd controller serves web ui", sub {
-            $machine->succeed("${pkgs.curl}/bin/curl --unix-socket /run/rspamd/worker-controller.sock http://localhost/ | grep -q '<body>'" );
-      };
-    '';
+    with subtest("rspamd controller serves web ui"):
+        machine.succeed(
+            "${pkgs.curl}/bin/curl --unix-socket /run/rspamd/worker-controller.sock http://localhost/ | grep -q '<body>'"
+        )
+  '';
 }

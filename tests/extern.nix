@@ -16,8 +16,8 @@
 
 { pkgs ? import <nixpkgs> {}}:
 
-import (pkgs.path + "/nixos/tests/make-test.nix") {
-
+pkgs.nixosTest {
+  name = "extern";
   nodes = {
     server = { config, pkgs, ... }:
         {
@@ -282,137 +282,144 @@ import (pkgs.path + "/nixos/tests/make-test.nix") {
 
   testScript = { nodes, ... }:
       ''
-      startAll;
+      start_all()
 
-      $server->waitForUnit("multi-user.target");
-      $client->waitForUnit("multi-user.target");
+      server.wait_for_unit("multi-user.target")
+      client.wait_for_unit("multi-user.target")
 
       # TODO put this blocking into the systemd units?
-      $server->waitUntilSucceeds("timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ \$? -eq 124 ]");
+      server.wait_until_succeeds(
+          "timeout 1 ${nodes.server.pkgs.netcat}/bin/nc -U /run/rspamd/rspamd-milter.sock < /dev/null; [ $? -eq 124 ]"
+      )
 
-      $client->execute("cp -p /etc/root/.* ~/");
-      $client->succeed("mkdir -p ~/mail");
-      $client->succeed("ls -la ~/ >&2");
-      $client->succeed("cat ~/.fetchmailrc >&2");
-      $client->succeed("cat ~/.procmailrc >&2");
-      $client->succeed("cat ~/.msmtprc >&2");
+      client.execute("cp -p /etc/root/.* ~/")
+      client.succeed("mkdir -p ~/mail")
+      client.succeed("ls -la ~/ >&2")
+      client.succeed("cat ~/.fetchmailrc >&2")
+      client.succeed("cat ~/.procmailrc >&2")
+      client.succeed("cat ~/.msmtprc >&2")
 
-      subtest "imap retrieving mail", sub {
+      with subtest("imap retrieving mail"):
           # fetchmail returns EXIT_CODE 1 when no new mail
-          $client->succeed("fetchmail --nosslcertck -v || [ \$? -eq 1 ] >&2");
-      };
+          client.succeed("fetchmail --nosslcertck -v || [ $? -eq 1 ] >&2")
 
-      subtest "submission port send mail", sub {
+      with subtest("submission port send mail"):
           # send email from user2 to user1
-          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email1 >&2");
+          client.succeed(
+              "msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email1 >&2"
+          )
           # give the mail server some time to process the mail
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
-      };
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
 
-      subtest "imap retrieving mail 2", sub {
-          $client->execute("rm ~/mail/*");
+      with subtest("imap retrieving mail 2"):
+          client.execute("rm ~/mail/*")
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail --nosslcertck -v >&2");
-      };
+          client.succeed("fetchmail --nosslcertck -v >&2")
 
-      subtest "remove sensitive information on submission port", sub {
-        $client->succeed("cat ~/mail/* >&2");
-        ## make sure our IP is _not_ in the email header
-        $client->fail("grep-ip ~/mail/*");
-        $client->succeed("check-mail-id ~/mail/*");
-      };
+      with subtest("remove sensitive information on submission port"):
+          client.succeed("cat ~/mail/* >&2")
+          ## make sure our IP is _not_ in the email header
+          client.fail("grep-ip ~/mail/*")
+          client.succeed("check-mail-id ~/mail/*")
 
-      subtest "have correct fqdn as sender", sub {
-        $client->succeed("grep 'Received: from mail.example.com' ~/mail/*");
-      };
+      with subtest("have correct fqdn as sender"):
+          client.succeed("grep 'Received: from mail.example.com' ~/mail/*")
 
-      subtest "dkim has user-specified size", sub {
-        $server->succeed("openssl rsa -in /var/dkim/example.com.mail.key -text -noout | grep 'Private-Key: (1535 bit'");
-      };
+      with subtest("dkim has user-specified size"):
+          server.succeed(
+              "openssl rsa -in /var/dkim/example.com.mail.key -text -noout | grep 'Private-Key: (1535 bit'"
+          )
 
-      subtest "dkim singing, multiple domains", sub {
-          $client->execute("rm ~/mail/*");
+      with subtest("dkim singing, multiple domains"):
+          client.execute("rm ~/mail/*")
           # send email from user2 to user1
-          $client->succeed("msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email2 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test2 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email2 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail  --nosslcertck -v");
-          $client->succeed("cat ~/mail/* >&2");
+          client.succeed("fetchmail  --nosslcertck -v")
+          client.succeed("cat ~/mail/* >&2")
           # make sure it is dkim signed
-          $client->succeed("grep DKIM ~/mail/*");
-      };
+          client.succeed("grep DKIM ~/mail/*")
 
-      subtest "aliases", sub {
-          $client->execute("rm ~/mail/*");
+      with subtest("aliases"):
+          client.execute("rm ~/mail/*")
           # send email from chuck to postmaster
-          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on postmaster\@example.com < /etc/root/email2 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test3 --tls=on --tls-certcheck=off --auth=on postmaster\@example.com < /etc/root/email2 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail --nosslcertck -v");
-      };
+          client.succeed("fetchmail --nosslcertck -v")
 
-      subtest "catchAlls", sub {
-          $client->execute("rm ~/mail/*");
+      with subtest("catchAlls"):
+          client.execute("rm ~/mail/*")
           # send email from chuck to non exsitent account
-          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lol\@example.com < /etc/root/email2 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lol\@example.com < /etc/root/email2 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail --nosslcertck -v");
+          client.succeed("fetchmail --nosslcertck -v")
 
-          $client->execute("rm ~/mail/*");
+          client.execute("rm ~/mail/*")
           # send email from user1 to chuck
-          $client->succeed("msmtp -a test4 --tls=on --tls-certcheck=off --auth=on chuck\@example.com < /etc/root/email2 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test4 --tls=on --tls-certcheck=off --auth=on chuck\@example.com < /etc/root/email2 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 1 when no new mail
           # if this succeeds, it means that user1 recieved the mail that was intended for chuck.
-          $client->fail("fetchmail --nosslcertck -v");
-      };
+          client.fail("fetchmail --nosslcertck -v")
 
-      subtest "extraVirtualAliases", sub {
-          $client->execute("rm ~/mail/*");
+      with subtest("extraVirtualAliases"):
+          client.execute("rm ~/mail/*")
           # send email from single-alias to user1
-          $client->succeed("msmtp -a test5 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email4 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test5 --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email4 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail --nosslcertck -v");
+          client.succeed("fetchmail --nosslcertck -v")
 
-          $client->execute("rm ~/mail/*");
+          client.execute("rm ~/mail/*")
           # send email from user1 to multi-alias (user{1,2}@example.com)
-          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on multi-alias\@example.com < /etc/root/email5 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test --tls=on --tls-certcheck=off --auth=on multi-alias\@example.com < /etc/root/email5 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->succeed("fetchmail --nosslcertck -v");
-      };
+          client.succeed("fetchmail --nosslcertck -v")
 
-      subtest "quota", sub {
-          $client->execute("rm ~/mail/*");
-          $client->execute("mv ~/.fetchmailRcLowQuota ~/.fetchmailrc");
+      with subtest("quota"):
+          client.execute("rm ~/mail/*")
+          client.execute("mv ~/.fetchmailRcLowQuota ~/.fetchmailrc")
 
-          $client->succeed("msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < /etc/root/email2 >&2");
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          client.succeed(
+              "msmtp -a test3 --tls=on --tls-certcheck=off --auth=on lowquota\@example.com < /etc/root/email2 >&2"
+          )
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
           # fetchmail returns EXIT_CODE 0 when it retrieves mail
-          $client->fail("fetchmail --nosslcertck -v");
+          client.fail("fetchmail --nosslcertck -v")
 
-      };
-
-      subtest "imap sieve junk trainer", sub {
+      with subtest("imap sieve junk trainer"):
           # send email from user2 to user1
-          $client->succeed("msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email1 >&2");
+          client.succeed(
+              "msmtp -a test --tls=on --tls-certcheck=off --auth=on user1\@example.com < /etc/root/email1 >&2"
+          )
           # give the mail server some time to process the mail
-          $server->waitUntilFails('[ "$(postqueue -p)" != "Mail queue is empty" ]');
+          server.wait_until_fails('[ "$(postqueue -p)" != "Mail queue is empty" ]')
 
-          $client->succeed("imap-mark-spam >&2");
-          $server->waitUntilSucceeds("journalctl -u dovecot2 | grep -i sa-learn-spam.sh >&2");
-          $client->succeed("imap-mark-ham >&2");
-          $server->waitUntilSucceeds("journalctl -u dovecot2 | grep -i sa-learn-ham.sh >&2");
-      };
+          client.succeed("imap-mark-spam >&2")
+          server.wait_until_succeeds("journalctl -u dovecot2 | grep -i sa-learn-spam.sh >&2")
+          client.succeed("imap-mark-ham >&2")
+          server.wait_until_succeeds("journalctl -u dovecot2 | grep -i sa-learn-ham.sh >&2")
 
-      subtest "no warnings or errors", sub {
-          $server->fail("journalctl -u postfix | grep -i error >&2");
-          $server->fail("journalctl -u postfix | grep -i warning >&2");
-          $server->fail("journalctl -u dovecot2 | grep -i error >&2");
-          $server->fail("journalctl -u dovecot2 | grep -i warning >&2");
-      };
-
+      with subtest("no warnings or errors"):
+          server.fail("journalctl -u postfix | grep -i error >&2")
+          server.fail("journalctl -u postfix | grep -i warning >&2")
+          server.fail("journalctl -u dovecot2 | grep -i error >&2")
+          server.fail("journalctl -u dovecot2 | grep -i warning >&2")
     '';
 }
