@@ -73,7 +73,7 @@ in {
 
     # define all users
     users.users = {
-      "${vmail_user.name}" = lib.mkForce vmail_user;
+      "${vmail_user.name}" = vmail_user;
     };
 
     systemd.services.activate-virtual-mail-users = {
