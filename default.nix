@@ -1,4 +1,3 @@
-
 #  nixos-mailserver: a simple mail server
 #  Copyright (C) 2016-2018  Robin Raymond
 #
@@ -552,6 +551,33 @@ in
         Rewrites the Message-ID's hostname-part of outgoing emails to the FQDN.
         Please be aware that this may cause problems with some mail clients
         relying on the original Message-ID.
+      '';
+    };
+
+    sendingFqdn = mkOption {
+      type = types.str;
+      default = cfg.fqdn;
+      defaultText = "config.mailserver.fqdn";
+      example = "myserver.example.com";
+      description = ''
+        The fully qualified domain name of the mail server used to
+        identify with remote servers.
+
+        If this server's IP serves purposes other than a mail server,
+        it may be desirable for the server to have a name other than
+        that to which the user will connect.  For example, the user
+        might connect to mx.example.com, but the server's IP has
+        reverse DNS that resolves to myserver.example.com; in this
+        scenario, some mail servers may reject or penalize the
+        message.
+
+        This setting allows the server to identify as
+        myserver.example.com when forwarding mail, independently of
+        `fqdn` (which, for SSL reasons, should generally be the name
+        to which the user connects).
+
+        Set this to the name to which the sending IP's reverse DNS
+        resolves.
       '';
     };
 
