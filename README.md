@@ -121,6 +121,11 @@ See the [How to Develop SNM](https://nixos-mailserver.readthedocs.io/en/latest/h
 
 ## Release notes
 
+### master / unreleased
+
+- NixOS 20.03 is not supported anymore. Please use NixOS 20.09 or NixOS Unstable or downgrade to the latest SNM release.
+- IMAP and Submission with TLS wrapped-mode are now enabled by default on ports 993 and 465 respectively.
+
 ### nixos-20.03
 
 - Rspamd is upgraded to 2.0 which deprecates the SQLite Bayes
