@@ -307,31 +307,27 @@ in
         The mailboxes for dovecot.
         Depending on the mail client used it might be necessary to change some mailbox's name.
       '';
-      default = [
-        {
-          name = "Trash";
-          auto = "no";
-          specialUse = "Trash";
-        }
-
-        {
-          name = "Junk";
-          auto = "subscribe";
-          specialUse = "Junk";
-        }
-
-        {
-          name = "Drafts";
-          auto = "subscribe";
-          specialUse = "Drafts";
-        }
-
-        {
-          name = "Sent";
-          auto = "subscribe";
-          specialUse = "Sent";
-        }
-      ];
+      default = let
+        defMailBoxes = {
+          Trash = {
+            auto = "no";
+            specialUse = "Trash";
+          };
+          Junk = {
+            auto = "subscribe";
+            specialUse = "Junk";
+          };
+          Drafts = {
+            auto = "subscribe";
+            specialUse = "Drafts";
+          };
+          Sent = {
+            auto = "subscribe";
+            specialUse = "Sent";
+          };
+        };
+      in if (versionAtLeast version "20.09pre") then defMailBoxes
+      else (flip mapAttrsToList defMailBoxes (name: options: { inherit name; } // options));
     };
 
     certificateScheme = mkOption {
