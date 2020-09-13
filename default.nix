@@ -47,7 +47,7 @@ in
     };
 
     loginAccounts = mkOption {
-      type = types.loaOf (types.submodule ({ name, ... }: {
+      type = types.attrsOf (types.submodule ({ name, ... }: {
         options = {
           name = mkOption {
             type = types.str;
@@ -193,14 +193,12 @@ in
     };
 
     extraVirtualAliases = mkOption {
-      type = types.loaOf (mkOptionType {
-        name = "Login Account";
-        check = (ele:
-          let accounts = builtins.attrNames cfg.loginAccounts;
-          in if (builtins.isList ele)
-            then (builtins.all (x: builtins.elem x accounts) ele) && (builtins.length ele > 0)
-            else (builtins.elem ele accounts));
-      });
+      type = let
+        loginAccount = mkOptionType {
+          name = "Login Account";
+          check = (account: builtins.elem account (builtins.attrNames cfg.loginAccounts));
+        };
+      in with types; attrsOf (either loginAccount (nonEmptyListOf loginAccount));
       example = {
         "info@example.com" = "user1@example.com";
         "postmaster@example.com" = "user1@example.com";
