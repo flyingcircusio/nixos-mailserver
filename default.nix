@@ -218,6 +218,24 @@ in
       default = {};
     };
 
+    forwards = mkOption {
+      type = with types; attrsOf (either (listOf str) str);
+      default = {};
+      example = {
+        "user@example.com" = "user@elsewhere.com";
+      };
+      description = ''
+        To forward mails to an external address. For instance,
+        the value {`"user@example.com" = "user@elsewhere.com";}`
+        means that mails to `user@example.com` are forwarded to
+        `user@elsewhere.com`. The difference with the
+        `extraVirtualAliases` option is that `user@elsewhere.com`
+        can't send mail as `user@example.com`. Also, this option
+        allows to forward mails to external addresses.
+      '';
+      default = {};
+    };
+
     rejectSender = mkOption {
       type = types.listOf types.str;
       example = [ "@example.com" "spammer@example.net" ];

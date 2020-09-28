@@ -37,15 +37,7 @@ let
     cfg.loginAccounts);
 
   # extra_valiases_postfix :: [ String ]
-  extra_valiases_postfix =
-    (map
-    (from:
-      let to = cfg.extraVirtualAliases.${from};
-          aliasList = (l: let aliasStr = builtins.foldl' (x: y: x + y + ", ") "" l;
-                          in builtins.substring 0 (builtins.stringLength aliasStr - 2) aliasStr);
-      in if (builtins.isList to) then "${from} " + (aliasList to)
-                                 else "${from} ${to}")
-    (builtins.attrNames cfg.extraVirtualAliases));
+  extra_valiases_postfix = attrsToAliasList cfg.extraVirtualAliases;
 
   # all_valiases_postfix :: [ String ]
   all_valiases_postfix = valiases_postfix ++ extra_valiases_postfix;
@@ -56,6 +48,16 @@ let
     (lib.filter (acct: acct.sendOnly) (lib.attrValues cfg.loginAccounts)));
   denied_recipients_file = builtins.toFile "denied_recipients" (lib.concatStringsSep "\n" denied_recipients_postfix);
 
+  # attrsToAliasList :: Map String (Either String [ String ]) -> [ String ]
+  attrsToAliasList = aliases:
+    let
+      toList = to: if builtins.isList to then to else [to];
+    in lib.mapAttrsToList
+         (from: to: "${from} " + (lib.concatStringsSep ", " (toList to)))
+         aliases;
+
+  # forwards :: [ String ]
+  forwards = attrsToAliasList cfg.forwards;
 
   # valiases_file :: Path
   valiases_file = builtins.toFile "valias"
@@ -136,7 +138,7 @@ in
       sslKey = keyPath;
       enableSubmission = true;
       virtual =
-        (lib.concatStringsSep "\n" (all_valiases_postfix ++ catchAllPostfix));
+        (lib.concatStringsSep "\n" (all_valiases_postfix ++ catchAllPostfix ++ forwards));
 
       config = {
         # Extra Config
