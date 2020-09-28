@@ -35,6 +35,7 @@ let
     "intern"
     "extern"
     "clamav"
+    "multiple"
   ];
 
   # Generate an attribute set containing one test per releases
