@@ -56,6 +56,7 @@ in
       services.opendkim = {
         enable = true;
         selector = cfg.dkimSelector;
+        keyPath = cfg.dkimKeyDirectory;
         domains = "csl:${builtins.concatStringsSep "," cfg.domains}";
         configFile = pkgs.writeText "opendkim.conf" (''
           Canonicalization relaxed/simple
