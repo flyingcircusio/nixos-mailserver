@@ -8,13 +8,18 @@
 For each NixOS release, we publish a branch. You then have to use the
 SNM branch corresponding to your NixOS version.
 
+* For NixOS 20.09
+   - Use the [SNM branch `nixos-20.03`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-20.09)
+   - [Documentation](https://nixos-mailserver.readthedocs.io/en/nixos-20.09/)
+   - [Release notes](https://nixos-mailserver.readthedocs.io/en/nixos-20.09/release-notes.html#nixos-20-09)
 * For NixOS 20.03
-   -  Use the [SNM branch `nixos-20.03`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-20.03)
+   - Use the [SNM branch `nixos-20.03`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-20.03)
    - [Release notes](#nixos-2003)
-* For NixOS 19.09
-   - Use the [SNM branch `nixos-19.09`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/nixos-19.09)
 * For NixOS unstable
    - Use the [SNM branch `master`](https://gitlab.com/simple-nixos-mailserver/nixos-mailserver/-/tree/master)
+   - This branch is currently supporting the NixOS release 20.09 but
+     we could remove this support on any NixOS unstable breaking
+     change.
 
 [Subscribe to SNM Announcement List](https://www.freelists.org/list/snm)
 This is a very low volume list where new releases of SNM are announced, so you
@@ -120,11 +125,6 @@ Checkout the [Complete Backup Guide](https://nixos-mailserver.readthedocs.io/en/
 See the [How to Develop SNM](https://nixos-mailserver.readthedocs.io/en/latest/howto-develop.html) wiki page.
 
 ## Release notes
-
-### master / unreleased
-
-- NixOS 20.03 is not supported anymore. Please use NixOS 20.09 or NixOS Unstable or downgrade to the latest SNM release.
-- IMAP and Submission with TLS wrapped-mode are now enabled by default on ports 993 and 465 respectively.
 
 ### nixos-20.03
 

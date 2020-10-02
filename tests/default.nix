@@ -27,6 +27,7 @@ let
   };
 
   releaseNames = [
+    "nixpkgs-20.09"
     "nixpkgs-unstable"
   ];
 
