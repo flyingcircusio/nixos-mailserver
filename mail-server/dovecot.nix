@@ -124,6 +124,7 @@ in
               ${if cfg.enableImap then ''
                 port = 143
               '' else ''
+                # see https://dovecot.org/pipermail/dovecot/2010-March/047479.html
                 port = 0
               ''}
             }
@@ -132,6 +133,7 @@ in
                 port = 993
                 ssl = yes
               '' else ''
+                # see https://dovecot.org/pipermail/dovecot/2010-March/047479.html
                 port = 0
               ''}
             }
@@ -143,6 +145,7 @@ in
               ${if cfg.enablePop3 then ''
                 port = 110
               '' else ''
+                # see https://dovecot.org/pipermail/dovecot/2010-March/047479.html
                 port = 0
               ''}
             }
@@ -151,6 +154,7 @@ in
                 port = 995
                 ssl = yes
               '' else ''
+                # see https://dovecot.org/pipermail/dovecot/2010-March/047479.html
                 port = 0
               ''}
             }

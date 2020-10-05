@@ -62,6 +62,8 @@ pkgs.nixosTest {
 
         vmailGroupName = "vmail";
         vmailUID = 5000;
+
+        enableImap = false;
       };
     };
   };
@@ -85,6 +87,13 @@ pkgs.nixosTest {
     with subtest("rspamd controller serves web ui"):
         machine.succeed(
             "${pkgs.curl}/bin/curl --unix-socket /run/rspamd/worker-controller.sock http://localhost/ | grep -q '<body>'"
+        )
+
+    with subtest("imap port 143 is closed and imaps is serving SSL"):
+        machine.wait_for_closed_port(143)
+        machine.wait_for_open_port(993)
+        machine.succeed(
+            "echo | ${pkgs.openssl}/bin/openssl s_client -connect localhost:993 | grep 'New, TLS'"
         )
   '';
 }
