@@ -34,7 +34,6 @@ let
   testNames = [
     "intern"
     "extern"
-    "clamav"
     "multiple"
   ];
 
