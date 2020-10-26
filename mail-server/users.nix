@@ -20,12 +20,12 @@ with config.mailserver;
 
 let
   vmail_user = {
-    name = vmailUserName;
+    name = lib.mkOverride 50 vmailUserName;
     isNormalUser = false;
     uid = vmailUID;
     home = mailDirectory;
     createHome = true;
-    group = vmailGroupName;
+    group = lib.mkOverride 50 vmailGroupName;
   };
 
 
@@ -86,7 +86,7 @@ in {
 
     # define all users
     users.users = {
-      "${vmail_user.name}" = lib.mkForce vmail_user;
++      "${vmailUserName}" = vmail_user;
     };
 
     systemd.services.activate-virtual-mail-users = {

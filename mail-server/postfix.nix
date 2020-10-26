@@ -158,7 +158,6 @@ in
 
       config = {
         # Extra Config
-        mydestination = "";
         recipient_delimiter = "+";
         smtpd_banner = "${fqdn} ESMTP NO UCE";
         disable_vrfy_command = true;
