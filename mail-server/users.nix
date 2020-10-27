@@ -86,7 +86,7 @@ in {
 
     # define all users
     users.users = {
-+      "${vmailUserName}" = vmail_user;
+      "${vmailUserName}" = vmail_user;
     };
 
     systemd.services.activate-virtual-mail-users = {
