@@ -220,7 +220,6 @@ in
 
     forwards = mkOption {
       type = with types; attrsOf (either (listOf str) str);
-      default = {};
       example = {
         "user@example.com" = "user@elsewhere.com";
       };
